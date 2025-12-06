@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingScreen from '@/components/screens/LoadingScreen';
 import { Button } from '@/components/ui';
-import { BookIcon } from '@/components/icons';
+import { BookIcon, SettingsIcon } from '@/components/icons';
 
 export default function HomeScreen() {
   const { user, signOut, loading } = useAuth();
@@ -68,6 +68,17 @@ export default function HomeScreen() {
             </View>
             <Text className="text-lg font-instrument-serif text-black">
               Past reflections
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push('/settings')}
+            className="mt-3 flex-row items-center"
+          >
+            <View className="mr-2">
+              <SettingsIcon width={20} height={20} color="black" />
+            </View>
+            <Text className="text-lg font-instrument-serif text-black">
+              Settings
             </Text>
           </TouchableOpacity>
         </View>

@@ -64,6 +64,7 @@ export default function RootLayout() {
               <Stack.Screen name="crying" />
               <Stack.Screen name="reflections" />
               <Stack.Screen name="reflection" />
+              <Stack.Screen name="settings" />
             </Stack>
             <StatusBar style="auto" />
           </ThemeProvider>

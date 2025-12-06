@@ -6,88 +6,94 @@ import { useCrying } from '@/contexts/CryingContext';
 import { EmotionType } from '@/contexts/CryingContext';
 
 const emotionOptions = [
-  {
-    value: 'OVERWHELMED' as EmotionType,
-    label: 'Overwhelmed',
-  },
-  {
-    value: 'MISSING_SOMEONE' as EmotionType,
-    label: 'Missing Someone',
-  },
-  {
-    value: 'STRESS' as EmotionType,
-    label: 'Stress',
-  },
-  {
-    value: 'LONELINESS' as EmotionType,
-    label: 'Loneliness',
-  },
-  {
-    value: 'RELATIONSHIP_ISSUES' as EmotionType,
-    label: 'Relationship Issues',
-  },
-  {
-    value: 'SADNESS' as EmotionType,
-    label: 'Sadness',
-  },
-  {
-    value: 'JOY' as EmotionType,
-    label: 'Joy',
-  },
-  {
-    value: 'PROUD' as EmotionType,
-    label: 'Pride',
-  },
-  {
-    value: 'NO_REASON' as EmotionType,
-    label: 'No Specific Reason',
-  }
+    {
+        value: 'OVERWHELMED' as EmotionType,
+        label: 'Overwhelmed',
+    },
+    {
+        value: 'MISSING_SOMEONE' as EmotionType,
+        label: 'Missing Someone',
+    },
+    {
+        value: 'STRESS' as EmotionType,
+        label: 'Stress',
+    },
+    {
+        value: 'LONELINESS' as EmotionType,
+        label: 'Loneliness',
+    },
+    {
+        value: 'RELATIONSHIP_ISSUES' as EmotionType,
+        label: 'Relationship Issues',
+    },
+    {
+        value: 'SADNESS' as EmotionType,
+        label: 'Sadness',
+    },
+    {
+        value: 'JOY' as EmotionType,
+        label: 'Joy',
+    },
+    {
+        value: 'PROUD' as EmotionType,
+        label: 'Pride',
+    },
+    {
+        value: 'NO_REASON' as EmotionType,
+        label: 'No Specific Reason',
+    },
 ];
 
 export default function CryingStep2() {
-  const { sessionData, updateEmotions } = useCrying();
-  const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(sessionData.emotions);
+    const { sessionData, updateEmotions } = useCrying();
+    const [selectedEmotion, setSelectedEmotion] = useState<EmotionType | null>(
+        sessionData.emotions
+    );
 
-  const handleNext = () => {
-    if (!selectedEmotion) {
-      Alert.alert('Please select an emotion', 'What were you feeling that led to crying?');
-      return;
-    }
+    const handleNext = () => {
+        if (!selectedEmotion) {
+            Alert.alert(
+                'Please select an emotion',
+                'What were you feeling that led to crying?'
+            );
+            return;
+        }
 
-    updateEmotions(selectedEmotion);
-    router.push('/crying/step3_intensity');
-  };
+        updateEmotions(selectedEmotion);
+        router.push('/crying/step3_intensity');
+    };
 
-  const handleEmotionChange = (emotion: EmotionType) => {
-    setSelectedEmotion(emotion);
-  };
+    const handleEmotionChange = (emotion: EmotionType) => {
+        setSelectedEmotion(emotion);
+    };
 
-  return (
-    <View className="flex-1 bg-white px-8 py-16">
-      <View className="flex-1 py-16">
-        <Text className="text-2xl font-instrument-serif text-center mb-6">
-          good job
-        </Text>
+    return (
+        <View className="flex-1 bg-white px-8 py-16">
+            <View className="flex-1 py-16">
+                <Text className="mb-6 text-center font-instrument-serif text-2xl">
+                    good job
+                </Text>
 
-        <Text className="text-lg font-instrument-serif-italic text-center mb-8 leading-7">
-          Take a quick survey so I can be better companion next time you need me.
-        </Text>
+                <Text className="mb-8 text-center font-instrument-serif-italic text-lg leading-7">
+                    Take a quick survey so I can be better companion next time
+                    you need me.
+                </Text>
 
-        <View className="flex-1 mb-8">
-          <SelectInput
-            value={selectedEmotion}
-            onChange={handleEmotionChange}
-            options={emotionOptions}
-            label="What brought you here today?"
-          />
+                <View className="mb-8 flex-1">
+                    <SelectInput
+                        value={selectedEmotion}
+                        onChange={handleEmotionChange}
+                        options={emotionOptions}
+                        label="What brought you here today?"
+                    />
+                </View>
+            </View>
+
+            <Button
+                title="Continue"
+                disabled={!selectedEmotion}
+                onPress={handleNext}
+            />
         </View>
-      </View>
-
-      <Button
-        title="Continue"
-        disabled={!selectedEmotion}
-        onPress={handleNext}
-      />
-    </View>
-  );
+    );
 }

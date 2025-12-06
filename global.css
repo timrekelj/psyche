@@ -4,28 +4,28 @@
 
 /* Custom font utility classes */
 @layer utilities {
-  .font-instrument-serif-bold {
-    font-family: 'InstrumentSerif-Regular', serif;
-    font-weight: 700;
-  }
-  
-  .font-instrument-serif-semibold {
-    font-family: 'InstrumentSerif-Regular', serif;
-    font-weight: 600;
-  }
-  
-  .font-instrument-serif-medium {
-    font-family: 'InstrumentSerif-Regular', serif;
-    font-weight: 500;
-  }
-  
-  .font-instrument-serif-italic-bold {
-    font-family: 'InstrumentSerif-Italic', serif;
-    font-weight: 700;
-  }
-  
-  .font-instrument-serif-italic-semibold {
-    font-family: 'InstrumentSerif-Italic', serif;
-    font-weight: 600;
-  }
+    .font-instrument-serif-bold {
+        font-family: 'InstrumentSerif-Regular', serif;
+        font-weight: 700;
+    }
+
+    .font-instrument-serif-semibold {
+        font-family: 'InstrumentSerif-Regular', serif;
+        font-weight: 600;
+    }
+
+    .font-instrument-serif-medium {
+        font-family: 'InstrumentSerif-Regular', serif;
+        font-weight: 500;
+    }
+
+    .font-instrument-serif-italic-bold {
+        font-family: 'InstrumentSerif-Italic', serif;
+        font-weight: 700;
+    }
+
+    .font-instrument-serif-italic-semibold {
+        font-family: 'InstrumentSerif-Italic', serif;
+        font-weight: 600;
+    }
 }

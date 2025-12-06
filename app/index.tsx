@@ -4,17 +4,17 @@ import SplashScreen from '@/components/screens/SplashScreen';
 import LoadingScreen from '@/components/screens/LoadingScreen';
 
 export default function Index() {
-  const { user, loading, showSplash } = useAuth();
+    const { user, loading, showSplash } = useAuth();
 
-  if (showSplash) {
-    return <SplashScreen />;
-  }
+    if (showSplash) {
+        return <SplashScreen />;
+    }
 
-  if (loading) {
-    return <LoadingScreen />;
-  }
+    if (loading) {
+        return <LoadingScreen />;
+    }
 
-  // If authenticated, redirect to /home
-  // If not authenticated, redirect to login
-  return <Redirect href={user ? "/home" : "/(auth)/login"} />;
+    // If authenticated, redirect to /home
+    // If not authenticated, redirect to login
+    return <Redirect href={user ? '/home' : '/(auth)/login'} />;
 }
