@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Button, TextInput, Text } from '@/components/ui';
 
 export default function LoginScreen() {
@@ -16,6 +17,7 @@ export default function LoginScreen() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const { signIn } = useAuth();
+    const { isDark } = useTheme();
 
     const handleLogin = async () => {
         if (!email || !password) {
@@ -45,7 +47,7 @@ export default function LoginScreen() {
 
     return (
         <KeyboardAvoidingView
-            className="flex-1 bg-white"
+            className={`flex-1 ${isDark ? 'bg-black' : 'bg-white'}`}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
             <ScrollView
@@ -59,10 +61,14 @@ export default function LoginScreen() {
                 keyboardShouldPersistTaps="handled"
             >
                 <View>
-                    <Text className="mb-8 text-xl">
+                    <Text
+                        className={`mb-8 text-xl ${isDark ? 'text-white' : 'text-black'}`}
+                    >
                         Cry whenever you need. As much as you need
                     </Text>
-                    <Text className="mb-8 italic">
+                    <Text
+                        className={`mb-8 italic ${isDark ? 'text-gray-300' : 'text-black'}`}
+                    >
                         Let it out. Breathe easier. Sleep easier. Science and
                         soul agree-crying heals.
                     </Text>
@@ -92,7 +98,7 @@ export default function LoginScreen() {
                 />
 
                 {error ? (
-                    <Text className="mb-4 font-instrument-serif  text-sm text-red-500">
+                    <Text className="mb-4 font-instrument-serif text-sm text-red-500">
                         {error}
                     </Text>
                 ) : null}
@@ -107,7 +113,9 @@ export default function LoginScreen() {
 
                 <View className="flex-row justify-center">
                     <TouchableOpacity onPress={navigateToRegister}>
-                        <Text>or sign up</Text>
+                        <Text className={isDark ? 'text-white' : 'text-black'}>
+                            or sign up
+                        </Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>

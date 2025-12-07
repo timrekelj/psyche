@@ -7,6 +7,7 @@ import {
     TouchableOpacityProps,
     Easing,
 } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface ButtonProps extends TouchableOpacityProps {
     title: string;
@@ -20,6 +21,7 @@ export default function Button({
     style,
     ...props
 }: ButtonProps) {
+    const { isDark } = useTheme();
     const isDisabled = disabled || loading;
     const breathingAnimation = useRef(new Animated.Value(1)).current;
 
@@ -51,21 +53,43 @@ export default function Button({
         }
     }, [loading, breathingAnimation]);
 
+    const getBackgroundClass = () => {
+        if (loading) {
+            return isDark ? 'bg-black' : 'bg-white';
+        }
+        if (disabled) {
+            return isDark ? 'bg-white/10' : 'bg-black/10';
+        }
+        return isDark ? 'bg-white' : 'bg-black';
+    };
+
+    const getTextColorClass = () => {
+        if (disabled) {
+            return isDark ? 'text-white' : 'text-black';
+        }
+        return isDark ? 'text-black' : 'text-white';
+    };
+
+    const getCircleColor = () => {
+        return isDark ? '#ffffff' : '#000000';
+    };
+
     return (
         <TouchableOpacity disabled={isDisabled} style={[style]} {...props}>
             <View
-                className={`px-5 py-4 transition-all duration-300 ${loading ? 'bg-white' : disabled ? 'bg-black/10' : 'bg-black'} rounded-lg`}
+                className={`px-5 py-4 transition-all duration-300 ${getBackgroundClass()} rounded-lg`}
             >
                 {loading ? (
                     <Animated.View
                         style={{
                             transform: [{ scale: breathingAnimation }],
+                            backgroundColor: getCircleColor(),
                         }}
-                        className="h-4 w-4 self-center rounded-full bg-black"
+                        className="h-4 w-4 self-center rounded-full"
                     />
                 ) : (
                     <Text
-                        className={`text-center font-instrument-serif text-base transition-all duration-300 ${disabled ? 'text-black' : 'text-white'}`}
+                        className={`text-center font-instrument-serif text-base transition-all duration-300 ${getTextColorClass()}`}
                     >
                         {title}
                     </Text>

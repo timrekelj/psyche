@@ -8,6 +8,7 @@ import {
     Animated,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useTheme } from '@/contexts/ThemeContext';
 import Button from './Button';
 
 interface TimePickerProps {
@@ -21,6 +22,7 @@ export default function TimePicker({
     onChange,
     placeholder = 'Select time',
 }: TimePickerProps) {
+    const { isDark } = useTheme();
     const [isVisible, setIsVisible] = useState(false);
     const [slideAnim] = useState(new Animated.Value(0));
     const [tempTime, setTempTime] = useState<Date | null>(null);
@@ -90,11 +92,21 @@ export default function TimePicker({
         <View>
             <TouchableOpacity
                 onPress={showBottomSheet}
-                className="rounded-lg border border-gray-300 bg-white px-4 py-4"
+                className={`rounded-lg border px-4 py-4 ${
+                    isDark
+                        ? 'border-gray-600 bg-gray-900'
+                        : 'border-gray-300 bg-white'
+                }`}
             >
                 <Text
                     className={`font-instrument-serif text-base ${
-                        value ? 'text-black' : 'text-gray-400'
+                        value
+                            ? isDark
+                                ? 'text-white'
+                                : 'text-black'
+                            : isDark
+                              ? 'text-gray-500'
+                              : 'text-gray-400'
                     }`}
                 >
                     {value ? formatTime(value) : placeholder}
@@ -114,9 +126,15 @@ export default function TimePicker({
                         style={{
                             transform: [{ translateY }],
                         }}
-                        className="rounded-t-2xl bg-white px-6 pb-10 pt-8"
+                        className={`rounded-t-2xl px-6 pb-10 pt-8 ${
+                            isDark ? 'bg-gray-900' : 'bg-white'
+                        }`}
                     >
-                        <Text className="mb-6 text-center font-instrument-serif text-xl">
+                        <Text
+                            className={`mb-6 text-center font-instrument-serif text-xl ${
+                                isDark ? 'text-white' : 'text-black'
+                            }`}
+                        >
                             Select Time
                         </Text>
 
@@ -127,7 +145,7 @@ export default function TimePicker({
                                 display="spinner"
                                 is24Hour={false}
                                 onChange={onTimeChange}
-                                textColor="#000000"
+                                textColor={isDark ? '#ffffff' : '#000000'}
                             />
                         </View>
 

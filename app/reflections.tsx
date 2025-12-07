@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Alert, RefreshControl } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { CryingService, CryEntry } from '@/lib/cryingService';
 import { Button } from '@/components/ui';
 import ReflectionCard from '@/components/ui/ReflectionCard';
@@ -9,6 +10,7 @@ import LoadingScreen from '@/components/screens/LoadingScreen';
 
 export default function ReflectionsScreen() {
     const { user } = useAuth();
+    const { isDark } = useTheme();
     const [entries, setEntries] = useState<CryEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -67,26 +69,49 @@ export default function ReflectionsScreen() {
     };
 
     if (loading) {
-        return <LoadingScreen />;
+        return (
+            <LoadingScreen
+                backgroundColor={isDark ? 'bg-black' : 'bg-white'}
+                circleColor={isDark ? '#ffffff' : '#000000'}
+            />
+        );
     }
 
     return (
-        <View className="flex-1 bg-white px-8 py-16">
+        <View
+            className={`flex-1 px-8 py-16 ${isDark ? 'bg-black' : 'bg-white'}`}
+        >
             <View className="px-8 py-16 pb-4">
-                <Text className="font-instrument-serif-bold mb-4 text-center text-2xl">
+                <Text
+                    className={`font-instrument-serif-bold mb-4 text-center text-2xl ${
+                        isDark ? 'text-white' : 'text-black'
+                    }`}
+                >
                     reflection journal
                 </Text>
-                <Text className="mb-6 text-center font-instrument-serif-italic text-lg text-gray-600">
+                <Text
+                    className={`mb-6 text-center font-instrument-serif-italic text-lg ${
+                        isDark ? 'text-gray-400' : 'text-gray-600'
+                    }`}
+                >
                     See your reflections and how you developer over days.
                 </Text>
             </View>
 
             {entries.length === 0 ? (
                 <View className="flex-1 items-center justify-center">
-                    <Text className="mb-4 text-center font-instrument-serif text-lg text-gray-600">
+                    <Text
+                        className={`mb-4 text-center font-instrument-serif text-lg ${
+                            isDark ? 'text-gray-400' : 'text-gray-600'
+                        }`}
+                    >
                         You haven't recorded any reflections yet.
                     </Text>
-                    <Text className="mb-8 text-center font-instrument-serif text-base text-gray-500">
+                    <Text
+                        className={`mb-8 text-center font-instrument-serif text-base ${
+                            isDark ? 'text-gray-500' : 'text-gray-500'
+                        }`}
+                    >
                         When you complete a crying session, it will appear here
                         for you to revisit and reflect upon.
                     </Text>
@@ -98,6 +123,7 @@ export default function ReflectionsScreen() {
                         <RefreshControl
                             refreshing={refreshing}
                             onRefresh={handleRefresh}
+                            tintColor={isDark ? '#ffffff' : '#000000'}
                         />
                     }
                 >
@@ -106,11 +132,14 @@ export default function ReflectionsScreen() {
                             key={entry.id}
                             entry={entry}
                             onPress={() => handleEntryPress(entry)}
+                            isDark={isDark}
                         />
                     ))}
 
                     <View className="pb-8 pt-4">
-                        <Text className="mb-4 text-center font-instrument-serif text-xs text-gray-400">
+                        <Text
+                            className={`mb-4 text-center font-instrument-serif text-xs text-gray-400`}
+                        >
                             Pull down to refresh
                         </Text>
                     </View>

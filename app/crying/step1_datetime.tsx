@@ -3,9 +3,11 @@ import { View, Text, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { Button, DatePicker, TimePicker } from '@/components/ui';
 import { useCrying } from '@/contexts/CryingContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function CryingStep1() {
     const { sessionData, updateCriedAt } = useCrying();
+    const { isDark } = useTheme();
     const [selectedDate, setSelectedDate] = useState<Date | null>(
         sessionData.criedAt || new Date()
     );
@@ -50,13 +52,23 @@ export default function CryingStep1() {
     };
 
     return (
-        <View className="flex-1 bg-white px-8 py-16">
+        <View
+            className={`flex-1 px-8 py-16 ${isDark ? 'bg-black' : 'bg-white'}`}
+        >
             <View className="flex-1 py-16">
-                <Text className="font-instrument-serif-bold mb-8 text-center text-2xl">
+                <Text
+                    className={`font-instrument-serif-bold mb-8 text-center text-2xl ${
+                        isDark ? 'text-white' : 'text-black'
+                    }`}
+                >
                     When did this happen?
                 </Text>
 
-                <Text className="mb-8 text-center font-instrument-serif text-lg leading-7">
+                <Text
+                    className={`mb-8 text-center font-instrument-serif text-lg leading-7 ${
+                        isDark ? 'text-gray-300' : 'text-black'
+                    }`}
+                >
                     Let's start by remembering when you cried or felt like
                     crying.
                 </Text>
@@ -77,7 +89,11 @@ export default function CryingStep1() {
                     </View>
                 </View>
 
-                <Text className="text-center font-instrument-serif text-base text-gray-600">
+                <Text
+                    className={`text-center font-instrument-serif text-base ${
+                        isDark ? 'text-gray-400' : 'text-gray-600'
+                    }`}
+                >
                     It's okay if you can't remember the exact date and time -
                     choose the closest one you can recall.
                 </Text>

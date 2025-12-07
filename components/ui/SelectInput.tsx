@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { EmotionType } from '@/contexts/CryingContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface SelectOption {
     value: EmotionType;
@@ -23,10 +24,16 @@ export default function SelectInput({
     label = 'Select an option',
     placeholder = 'Choose an option',
 }: SelectInputProps) {
+    const { isDark } = useTheme();
+
     return (
         <View>
             {label && (
-                <Text className="mb-4 font-instrument-serif text-lg text-gray-700">
+                <Text
+                    className={`mb-4 font-instrument-serif text-lg ${
+                        isDark ? 'text-gray-300' : 'text-gray-700'
+                    }`}
+                >
                     {label}
                 </Text>
             )}
@@ -38,15 +45,23 @@ export default function SelectInput({
                         onPress={() => onChange(option.value)}
                         className={`mb-3 rounded-lg border p-4 ${
                             value === option.value
-                                ? 'border-black bg-black'
-                                : 'border-gray-300 bg-white'
+                                ? isDark
+                                    ? 'border-white bg-white'
+                                    : 'border-black bg-black'
+                                : isDark
+                                  ? 'border-gray-600 bg-gray-900'
+                                  : 'border-gray-300 bg-white'
                         }`}
                     >
                         <Text
                             className={`font-instrument-serif text-base ${
                                 value === option.value
-                                    ? 'text-white'
-                                    : 'text-black'
+                                    ? isDark
+                                        ? 'text-black'
+                                        : 'text-white'
+                                    : isDark
+                                      ? 'text-white'
+                                      : 'text-black'
                             }`}
                         >
                             {option.label}
@@ -55,8 +70,12 @@ export default function SelectInput({
                             <Text
                                 className={`mt-1 font-instrument-serif text-sm ${
                                     value === option.value
-                                        ? 'text-gray-200'
-                                        : 'text-gray-600'
+                                        ? isDark
+                                            ? 'text-gray-700'
+                                            : 'text-gray-200'
+                                        : isDark
+                                          ? 'text-gray-400'
+                                          : 'text-gray-600'
                                 }`}
                             >
                                 {option.description}

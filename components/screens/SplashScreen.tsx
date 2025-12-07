@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Animated, Image, Text } from 'react-native';
 import { Easing } from 'react-native-reanimated';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function SplashScreen() {
+    const { isDark } = useTheme();
     const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
     useEffect(() => {
@@ -32,21 +34,33 @@ export default function SplashScreen() {
     }, [scaleAnim]);
 
     return (
-        <View className="flex-1 items-center justify-center bg-white">
+        <View
+            className={`flex-1 items-center justify-center ${isDark ? 'bg-black' : 'bg-white'}`}
+        >
             {/* Hello World text in the center */}
-            <Text className="absolute top-[25%] font-instrument-serif text-3xl text-black">
+            <Text
+                className={`absolute top-[25%] font-instrument-serif text-3xl ${
+                    isDark ? 'text-white' : 'text-black'
+                }`}
+            >
                 It's okay to cry.
             </Text>
 
             {/* Circle positioned so only upper half is visible */}
             <View className="absolute bottom-0 w-full items-center">
                 <Animated.View
-                    className="absolute -bottom-[400px] h-[800px] w-[800px] rounded-full bg-black"
+                    className={`absolute -bottom-[400px] h-[800px] w-[800px] rounded-full ${
+                        isDark ? 'bg-white' : 'bg-black'
+                    }`}
                     style={{ transform: [{ scale: scaleAnim }] }}
                 />
                 <Image
-                    source={require('../../assets/images/sad_face.png')}
-                    className="absolute bottom-[100px] w-[200px]"
+                    source={
+                        isDark
+                            ? require('../../assets/images/sad_face_black.png')
+                            : require('../../assets/images/sad_face.png')
+                    }
+                    className="absolute -bottom-20 w-[200px]"
                     resizeMode="contain"
                 />
             </View>

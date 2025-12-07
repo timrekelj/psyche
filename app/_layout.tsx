@@ -1,75 +1,84 @@
 import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
-import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
+    DarkTheme,
+    DefaultTheme,
+    ThemeProvider as NavigationThemeProvider,
+} from '@react-navigation/native';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { View } from 'react-native';
 import {
-  configureReanimatedLogger,
-  ReanimatedLogLevel,
+    configureReanimatedLogger,
+    ReanimatedLogLevel,
 } from 'react-native-reanimated';
 
 import { useFonts } from 'expo-font';
-import "../global.css";
+import '../global.css';
 
-import { useColorScheme } from "@/hooks/use-color-scheme";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { CryingProvider } from "@/contexts/CryingContext";
+import { AuthProvider } from '@/contexts/AuthContext';
+import { CryingProvider } from '@/contexts/CryingContext';
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 
 // Configure Reanimated logger
 configureReanimatedLogger({
-  level: ReanimatedLogLevel.warn,
-  strict: true, // Reanimated runs in strict mode by default
+    level: ReanimatedLogLevel.warn,
+    strict: true, // Reanimated runs in strict mode by default
 });
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+function RootLayoutContent() {
+    const { resolvedTheme, isDark } = useTheme();
+
+    return (
+        <View className={`flex-1 ${isDark ? 'dark' : ''}`}>
+            <NavigationThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+                <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="(auth)" />
+                    <Stack.Screen name="home" />
+                    <Stack.Screen name="crying" />
+                    <Stack.Screen name="reflections" />
+                    <Stack.Screen name="reflection" />
+                    <Stack.Screen name="settings" />
+                </Stack>
+                <StatusBar style={isDark ? 'light' : 'dark'} />
+            </NavigationThemeProvider>
+        </View>
+    );
+}
+
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+    // Load the Instrument Serif font
+    const [fontsLoaded] = useFonts({
+        'InstrumentSerif-Regular': require('../assets/fonts/InstrumentSerif-Regular.ttf'),
+        'InstrumentSerif-Italic': require('../assets/fonts/InstrumentSerif-Italic.ttf'),
+    });
 
-  // Load the Instrument Serif font
-  const [fontsLoaded] = useFonts({
-    'InstrumentSerif-Regular': require('../assets/fonts/InstrumentSerif-Regular.ttf'),
-    'InstrumentSerif-Italic': require('../assets/fonts/InstrumentSerif-Italic.ttf'),
-  });
+    useEffect(() => {
+        if (fontsLoaded) {
+            // Hide the native splash screen immediately after fonts are loaded
+            // Let the custom splash screen handle the timing
+            SplashScreen.hideAsync();
+        }
+    }, [fontsLoaded]);
 
-
-
-  useEffect(() => {
-    if (fontsLoaded) {
-      // Hide the native splash screen immediately after fonts are loaded
-      // Let the custom splash screen handle the timing
-      SplashScreen.hideAsync();
+    // Don't render the app until fonts are loaded
+    if (!fontsLoaded) {
+        return null;
     }
-  }, [fontsLoaded]);
 
-  // Don't render the app until fonts are loaded
-  if (!fontsLoaded) {
-    return null;
-  }
-
-  return (
-    <SafeAreaProvider>
-      <AuthProvider>
-        <CryingProvider>
-          <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(auth)" />
-              <Stack.Screen name="home" />
-              <Stack.Screen name="crying" />
-              <Stack.Screen name="reflections" />
-              <Stack.Screen name="reflection" />
-              <Stack.Screen name="settings" />
-            </Stack>
-            <StatusBar style="auto" />
-          </ThemeProvider>
-        </CryingProvider>
-      </AuthProvider>
-    </SafeAreaProvider>
-  );
+    return (
+        <SafeAreaProvider>
+            <ThemeProvider>
+                <AuthProvider>
+                    <CryingProvider>
+                        <RootLayoutContent />
+                    </CryingProvider>
+                </AuthProvider>
+            </ThemeProvider>
+        </SafeAreaProvider>
+    );
 }

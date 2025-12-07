@@ -5,6 +5,7 @@ import {
     Text,
     TextInputProps,
 } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface CustomTextInputProps extends TextInputProps {
     error?: boolean;
@@ -19,10 +20,14 @@ export default function TextInput({
     style,
     ...props
 }: CustomTextInputProps) {
+    const { isDark } = useTheme();
     const [actualValue, setActualValue] = useState(value || '');
 
-    const defaultInputStyles =
-        'border border-[.5px] border-black/20 rounded-lg px-5 py-4 font-instrument-serif placeholder:text-black/20';
+    const baseInputStyles =
+        'border border-[.5px] rounded-lg px-5 py-4 font-instrument-serif';
+    const themeStyles = isDark
+        ? 'bg-gray-900 border-white/20 text-white placeholder:text-white/40'
+        : 'border-black/20 text-black placeholder:text-black/20';
     const errorInputStyles = error ? 'border-red-500' : '';
 
     const handleTextChange = (text: string) => {
@@ -56,13 +61,16 @@ export default function TextInput({
         : actualValue;
 
     return (
-        <View className={`mb-4`}>
+        <View className="mb-4">
             <RNTextInput
-                className={`${defaultInputStyles} ${errorInputStyles}`}
+                className={`${baseInputStyles} ${themeStyles} ${errorInputStyles}`}
                 style={style}
                 value={displayValue}
                 onChangeText={handleTextChange}
                 secureTextEntry={false} // We're handling masking manually
+                placeholderTextColor={
+                    isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.2)'
+                }
                 {...props}
             />
         </View>
