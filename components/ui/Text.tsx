@@ -53,7 +53,7 @@ export default function Text({
             case 'success':
                 return 'text-green-500';
             default: // primary
-                return 'text-gray-900';
+                return 'text-black';
         }
     };
 

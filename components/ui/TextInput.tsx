@@ -26,7 +26,7 @@ export default function TextInput({
     const baseInputStyles =
         'border border-[.5px] rounded-lg px-5 py-4 font-instrument-serif';
     const themeStyles = isDark
-        ? 'bg-gray-900 border-white/20 text-white placeholder:text-white/40'
+        ? 'bg-black border-white/20 text-white placeholder:text-white/40'
         : 'border-black/20 text-black placeholder:text-black/20';
     const errorInputStyles = error ? 'border-red-500' : '';
 

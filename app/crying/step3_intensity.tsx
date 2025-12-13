@@ -43,7 +43,7 @@ export default function CryingStep3() {
                                 ? 'border-white bg-white'
                                 : 'border-black bg-black'
                             : isDark
-                              ? 'border-gray-600 bg-gray-900'
+                              ? 'border-gray-600 bg-black'
                               : 'border-gray-300 bg-white'
                     }`}
                 >
@@ -77,7 +77,7 @@ export default function CryingStep3() {
                                 ? 'border-white bg-white'
                                 : 'border-black bg-black'
                             : isDark
-                              ? 'border-gray-600 bg-gray-900'
+                              ? 'border-gray-600 bg-black'
                               : 'border-gray-300 bg-white'
                     }`}
                 >

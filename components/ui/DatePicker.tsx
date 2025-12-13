@@ -84,7 +84,7 @@ export default function DatePicker({
                 onPress={showBottomSheet}
                 className={`rounded-lg border px-4 py-4 ${
                     isDark
-                        ? 'border-gray-600 bg-gray-900'
+                        ? 'border-gray-600 bg-black'
                         : 'border-gray-300 bg-white'
                 }`}
             >
@@ -117,7 +117,7 @@ export default function DatePicker({
                             transform: [{ translateY }],
                         }}
                         className={`rounded-t-2xl px-6 pb-10 pt-8 ${
-                            isDark ? 'bg-gray-900' : 'bg-white'
+                            isDark ? 'bg-black' : 'bg-white'
                         }`}
                     >
                         <Text

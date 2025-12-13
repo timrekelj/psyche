@@ -19,7 +19,7 @@ export default function CryingStep5() {
 
     const handleGoHome = () => {
         resetSession(); // Clear the session data
-        router.push('/home');
+        router.replace('/home');
     };
 
     return (

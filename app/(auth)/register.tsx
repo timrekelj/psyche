@@ -9,6 +9,7 @@ import {
 import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import LegalLinks from '@/components/LegalLinks';
 import { Button, TextInput, Text } from '@/components/ui';
 
 export default function RegisterScreen() {
@@ -166,6 +167,8 @@ export default function RegisterScreen() {
                     }
                     className="mb-4"
                 />
+
+                <LegalLinks className='mb-4' />
 
                 <View className="flex-row justify-center">
                     <TouchableOpacity onPress={navigateToLogin}>

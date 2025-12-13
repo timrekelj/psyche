@@ -12,6 +12,8 @@ import {
 import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '@/constants/legal';
+import { openExternalLink } from '@/lib/openLink';
 import { Button, TextInput } from '@/components/ui';
 import LoadingScreen from '@/components/screens/LoadingScreen';
 import {
@@ -26,6 +28,8 @@ import {
     ChevronRight,
     X,
     LogOut,
+    FileText,
+    ShieldCheck,
 } from 'lucide-react-native';
 
 type ThemeMode = 'light' | 'dark' | 'system';
@@ -482,6 +486,43 @@ export default function SettingsScreen() {
                         }
                         isSelected={theme === 'system'}
                         onPress={() => handleThemeChange('system')}
+                        isDark={isDark}
+                />
+                </View>
+
+                {/* Legal */}
+                <View className="mb-8">
+                    <Text
+                        className={`mb-4 font-instrument-serif-italic text-lg ${
+                            isDark ? 'text-gray-400' : 'text-gray-600'
+                        }`}
+                    >
+                        Legal
+                    </Text>
+
+                    <SettingsRow
+                        icon={
+                            <FileText
+                                width={22}
+                                height={22}
+                                color={iconColor}
+                            />
+                        }
+                        label="Terms of Service"
+                        onPress={() => openExternalLink(TERMS_OF_SERVICE_URL)}
+                        isDark={isDark}
+                    />
+
+                    <SettingsRow
+                        icon={
+                            <ShieldCheck
+                                width={22}
+                                height={22}
+                                color={iconColor}
+                            />
+                        }
+                        label="Privacy Policy"
+                        onPress={() => openExternalLink(PRIVACY_POLICY_URL)}
                         isDark={isDark}
                     />
                 </View>
