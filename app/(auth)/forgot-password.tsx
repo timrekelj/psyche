@@ -11,38 +11,40 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button, TextInput, Text } from '@/components/ui';
 
-export default function LoginScreen() {
+export default function ForgotPasswordScreen() {
+    const { resetPassword } = useAuth();
+    const { isDark } = useTheme();
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const { signIn } = useAuth();
-    const { isDark } = useTheme();
+    const [message, setMessage] = useState('');
 
-    const handleLogin = async () => {
-        if (!email || !password) {
-            setError('Please fill in all fields');
+    const handleSendLink = async () => {
+        if (!email) {
+            setError('Please enter your email');
             return;
         }
 
         setLoading(true);
         setError('');
+        setMessage('');
         try {
-            await signIn(email, password);
-            router.replace('/home');
-        } catch (error: any) {
-            setError(error.message || 'Login failed. Please try again.');
+            await resetPassword(email.trim());
+            setMessage(
+                'Password reset link sent. Check your email to continue.'
+            );
+        } catch (err: any) {
+            setError(
+                err.message ||
+                    'Unable to send reset email. Please try again shortly.'
+            );
         } finally {
             setLoading(false);
         }
     };
 
-    const navigateToRegister = () => {
-        router.replace('/(auth)/register');
-    };
-
-    const navigateToForgotPassword = () => {
-        router.replace('/(auth)/forgot-password');
+    const navigateToLogin = () => {
+        router.replace('/(auth)/login');
     };
 
     const clearError = () => {
@@ -68,20 +70,19 @@ export default function LoginScreen() {
                     <Text
                         className={`mb-8 text-xl ${isDark ? 'text-white' : 'text-black'}`}
                     >
-                        Cry whenever you need. As much as you need
+                        Forgot your password?
                     </Text>
                     <Text
                         className={`mb-8 italic ${isDark ? 'text-gray-300' : 'text-black'}`}
                     >
-                        Let it out. Breathe easier. Sleep easier. Science and
-                        soul agree-crying heals.
+                        We'll email you a secure link to set a new one.
                     </Text>
                 </View>
 
                 <TextInput
-                    placeholder="john.doe@example.com"
+                    placeholder="Enter your email"
                     value={email}
-                    error={error ? true : false}
+                    error={!!error}
                     onChangeText={(text) => {
                         setEmail(text);
                         clearError();
@@ -90,45 +91,30 @@ export default function LoginScreen() {
                     autoCapitalize="none"
                 />
 
-                <TextInput
-                    placeholder="Password"
-                    value={password}
-                    error={error ? true : false}
-                    onChangeText={(text) => {
-                        setPassword(text);
-                        clearError();
-                    }}
-                    secureTextEntry
-                />
-
                 {error ? (
                     <Text className="mb-4 font-instrument-serif text-sm text-red-500">
                         {error}
                     </Text>
                 ) : null}
 
-                <View className="mb-4 flex-row justify-end">
-                    <TouchableOpacity onPress={navigateToForgotPassword}>
-                        <Text
-                            className={`text-sm ${isDark ? 'text-white' : 'text-black'}`}
-                        >
-                            Forgot password?
-                        </Text>
-                    </TouchableOpacity>
-                </View>
+                {message ? (
+                    <Text className="mb-4 font-instrument-serif text-sm text-green-500">
+                        {message}
+                    </Text>
+                ) : null}
 
                 <Button
-                    title="Login"
-                    onPress={handleLogin}
-                    disabled={!email || !password}
+                    title="Send reset link"
+                    onPress={handleSendLink}
+                    disabled={!email}
                     loading={loading}
                     className="mb-4"
                 />
 
                 <View className="flex-row justify-center">
-                    <TouchableOpacity onPress={navigateToRegister}>
+                    <TouchableOpacity onPress={navigateToLogin}>
                         <Text className={isDark ? 'text-white' : 'text-black'}>
-                            or sign up
+                            Back to login
                         </Text>
                     </TouchableOpacity>
                 </View>

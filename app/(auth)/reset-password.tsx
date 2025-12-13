@@ -11,42 +11,59 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button, TextInput, Text } from '@/components/ui';
 
-export default function LoginScreen() {
-    const [email, setEmail] = useState('');
+export default function ResetPasswordScreen() {
+    const { completePasswordReset, isPasswordRecovery } = useAuth();
+    const { isDark } = useTheme();
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const { signIn } = useAuth();
-    const { isDark } = useTheme();
+    const [message, setMessage] = useState('');
 
-    const handleLogin = async () => {
-        if (!email || !password) {
+    const handleReset = async () => {
+        if (!isPasswordRecovery) {
+            setError('Open the reset link from your email to continue.');
+            return;
+        }
+
+        if (!password || !confirmPassword) {
             setError('Please fill in all fields');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setError('Passwords do not match');
+            return;
+        }
+
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters');
             return;
         }
 
         setLoading(true);
         setError('');
+        setMessage('');
         try {
-            await signIn(email, password);
+            await completePasswordReset(password);
+            setMessage('Password updated. Redirecting you home.');
             router.replace('/home');
-        } catch (error: any) {
-            setError(error.message || 'Login failed. Please try again.');
+        } catch (err: any) {
+            setError(
+                err.message ||
+                    'Unable to update password. Please try again shortly.'
+            );
         } finally {
             setLoading(false);
         }
     };
 
-    const navigateToRegister = () => {
-        router.replace('/(auth)/register');
-    };
-
-    const navigateToForgotPassword = () => {
-        router.replace('/(auth)/forgot-password');
-    };
-
     const clearError = () => {
         if (error) setError('');
+    };
+
+    const navigateToForgot = () => {
+        router.replace('/(auth)/forgot-password');
     };
 
     return (
@@ -68,34 +85,33 @@ export default function LoginScreen() {
                     <Text
                         className={`mb-8 text-xl ${isDark ? 'text-white' : 'text-black'}`}
                     >
-                        Cry whenever you need. As much as you need
+                        Set a new password
                     </Text>
                     <Text
                         className={`mb-8 italic ${isDark ? 'text-gray-300' : 'text-black'}`}
                     >
-                        Let it out. Breathe easier. Sleep easier. Science and
-                        soul agree-crying heals.
+                        This screen opens after you tap the reset link in your
+                        email.
                     </Text>
                 </View>
 
                 <TextInput
-                    placeholder="john.doe@example.com"
-                    value={email}
-                    error={error ? true : false}
+                    placeholder="New password"
+                    value={password}
+                    error={!!error}
                     onChangeText={(text) => {
-                        setEmail(text);
+                        setPassword(text);
                         clearError();
                     }}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
+                    secureTextEntry
                 />
 
                 <TextInput
-                    placeholder="Password"
-                    value={password}
-                    error={error ? true : false}
+                    placeholder="Confirm new password"
+                    value={confirmPassword}
+                    error={!!error}
                     onChangeText={(text) => {
-                        setPassword(text);
+                        setConfirmPassword(text);
                         clearError();
                     }}
                     secureTextEntry
@@ -107,28 +123,24 @@ export default function LoginScreen() {
                     </Text>
                 ) : null}
 
-                <View className="mb-4 flex-row justify-end">
-                    <TouchableOpacity onPress={navigateToForgotPassword}>
-                        <Text
-                            className={`text-sm ${isDark ? 'text-white' : 'text-black'}`}
-                        >
-                            Forgot password?
-                        </Text>
-                    </TouchableOpacity>
-                </View>
+                {message ? (
+                    <Text className="mb-4 font-instrument-serif text-sm text-green-500">
+                        {message}
+                    </Text>
+                ) : null}
 
                 <Button
-                    title="Login"
-                    onPress={handleLogin}
-                    disabled={!email || !password}
+                    title="Update password"
+                    onPress={handleReset}
+                    disabled={!password || !confirmPassword}
                     loading={loading}
                     className="mb-4"
                 />
 
                 <View className="flex-row justify-center">
-                    <TouchableOpacity onPress={navigateToRegister}>
+                    <TouchableOpacity onPress={navigateToForgot}>
                         <Text className={isDark ? 'text-white' : 'text-black'}>
-                            or sign up
+                            Need a new link?
                         </Text>
                     </TouchableOpacity>
                 </View>
