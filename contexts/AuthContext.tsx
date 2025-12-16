@@ -36,6 +36,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [showSplash, setShowSplash] = useState(true);
     const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
+    const deepLinkOptions = { scheme: 'psyche', host: 'psyche.timrekelj.si' };
+    const createAppDeepLink = (path: string) =>
+        Linking.createURL(path, deepLinkOptions);
+
     useEffect(() => {
         // Get initial session
         supabase.auth.getSession().then(({ data: { session } }) => {
@@ -119,6 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             email,
             password,
             options: {
+                emailRedirectTo: createAppDeepLink('/(auth)/email-confirmed'),
                 data: {
                     first_name: firstName,
                     last_name: lastName,
@@ -155,7 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const resetPassword = async (email: string) => {
-        const redirectTo = Linking.createURL('/(auth)/reset-password');
+        const redirectTo = createAppDeepLink('/(auth)/reset-password');
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
             redirectTo,
         });
@@ -196,9 +201,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const updateEmail = async (newEmail: string) => {
-        const { error } = await supabase.auth.updateUser({
-            email: newEmail,
-        });
+        const { error } = await supabase.auth.updateUser(
+            {
+                email: newEmail,
+            },
+            { emailRedirectTo: createAppDeepLink('/(auth)/email-confirmed') }
+        );
 
         if (error) {
             throw error;

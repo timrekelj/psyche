@@ -1,45 +1,48 @@
 {
-    "expo": {
-        "name": "psyche",
-        "slug": "psyche",
-        "version": "1.0.0",
-        "orientation": "portrait",
-        "icon": "./assets/images/icon.png",
-        "scheme": "psyche",
-        "userInterfaceStyle": "automatic",
-        "newArchEnabled": true,
-        "assetBundlePatterns": ["**/*"],
-        "ios": {
-            "supportsTablet": true,
-            "bundleIdentifier": "com.timrekelj.psyche",
-            "infoPlist": {
-                "ITSAppUsesNonExemptEncryption": false
-            }
-        },
-        "plugins": [
-            "expo-router",
-            [
-                "expo-splash-screen",
-                {
-                    "image": "./assets/images/icon.png",
-                    "imageWidth": 200,
-                    "resizeMode": "contain",
-                    "backgroundColor": "#2563eb",
-                    "dark": {
-                        "backgroundColor": "#1e40af"
-                    }
-                }
-            ]
-        ],
-        "experiments": {
-            "typedRoutes": true,
-            "reactCompiler": true
-        },
-        "extra": {
-            "router": {},
-            "eas": {
-                "projectId": "c23a1e24-553a-40dc-9d63-5e016ba72af7"
-            }
+  "expo": {
+    "name": "the psyche",
+    "slug": "the-psyche",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "psyche",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "si.timrekelj.thepsyche",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#2563eb",
+          "dark": {
+            "backgroundColor": "#1e40af"
+          }
         }
-    }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1acecf81-2b88-4031-b2e7-4b1a317e22d3"
+      }
+    },
+    "owner": "tim_rekelj"
+  }
 }
