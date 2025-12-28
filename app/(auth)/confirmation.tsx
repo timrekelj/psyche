@@ -8,7 +8,7 @@ export default function ConfirmationScreen() {
     const { isDark } = useTheme();
 
     const navigateToLogin = () => {
-        router.replace('/(auth)/login');
+        router.replace('/login');
     };
 
     return (

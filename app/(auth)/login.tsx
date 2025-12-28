@@ -7,9 +7,9 @@ import {
     Platform,
 } from 'react-native';
 import { router } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import LegalLinks from '@/components/LegalLinks';
+import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import LegalLinks from '../../components/LegalLinks';
 import { Button, TextInput, Text } from '@/components/ui';
 
 export default function LoginScreen() {
@@ -39,11 +39,11 @@ export default function LoginScreen() {
     };
 
     const navigateToRegister = () => {
-        router.replace('/(auth)/register');
+        router.replace('/register');
     };
 
     const navigateToForgotPassword = () => {
-        router.replace('/(auth)/forgot-password');
+        router.replace('/forgot-password');
     };
 
     const clearError = () => {

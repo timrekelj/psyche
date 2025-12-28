@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { CryEntry } from '@/lib/cryingService';
-import { emotionLabels, formatRelativeDate } from '@/lib/reflectionUtils';
+import { CryEntry } from '../../lib/cryingService';
+import { emotionLabels, formatRelativeDate } from '../../lib/reflectionUtils';
 
 interface ReflectionCardProps {
     entry: CryEntry;

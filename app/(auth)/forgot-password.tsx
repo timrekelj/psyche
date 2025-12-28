@@ -7,8 +7,8 @@ import {
     Platform,
 } from 'react-native';
 import { router } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { Button, TextInput, Text } from '@/components/ui';
 
 export default function ForgotPasswordScreen() {
@@ -44,7 +44,7 @@ export default function ForgotPasswordScreen() {
     };
 
     const navigateToLogin = () => {
-        router.replace('/(auth)/login');
+        router.replace('/login');
     };
 
     const clearError = () => {

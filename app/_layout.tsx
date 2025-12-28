@@ -3,12 +3,13 @@ import {
     DefaultTheme,
     ThemeProvider as NavigationThemeProvider,
 } from '@react-navigation/native';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { View } from 'react-native';
+import * as Linking from 'expo-linking';
 import {
     configureReanimatedLogger,
     ReanimatedLogLevel,
@@ -17,8 +18,8 @@ import {
 import { useFonts } from 'expo-font';
 import '../global.css';
 
-import { AuthProvider } from '@/contexts/AuthContext';
-import { CryingProvider } from '@/contexts/CryingContext';
+import { AuthProvider } from '../contexts/AuthContext';
+import { CryingProvider } from '../contexts/CryingContext';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 
 // Configure Reanimated logger
@@ -32,6 +33,28 @@ SplashScreen.preventAutoHideAsync();
 
 function RootLayoutContent() {
     const { resolvedTheme, isDark } = useTheme();
+
+    useEffect(() => {
+        const handleUrl = (incomingUrl: string | null) => {
+            if (!incomingUrl) return;
+            const parsed = Linking.parse(incomingUrl);
+            const path = parsed.path ? `/${parsed.path}` : null;
+            if (!path) return;
+
+            const searchParams = new URLSearchParams(
+                (parsed.queryParams || {}) as Record<string, string>
+            ).toString();
+            const destination = searchParams ? `${path}?${searchParams}` : path;
+
+            router.replace(destination);
+        };
+
+        Linking.getInitialURL().then(handleUrl);
+        const sub = Linking.addEventListener('url', ({ url }) =>
+            handleUrl(url)
+        );
+        return () => sub.remove();
+    }, []);
 
     return (
         <View className={`flex-1 ${isDark ? 'dark' : ''}`}>

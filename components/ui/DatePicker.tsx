@@ -8,7 +8,7 @@ import {
     Animated,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import Button from './Button';
 
 interface DatePickerProps {

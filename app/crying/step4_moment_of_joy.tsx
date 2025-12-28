@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, Alert, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { Button, TextInput } from '@/components/ui';
-import { useCrying } from '@/contexts/CryingContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useCrying } from '../../contexts/CryingContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { CryingService } from '@/lib/cryingService';
 
 export default function CryingStep4() {

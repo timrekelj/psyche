@@ -5,7 +5,15 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "psyche",
+    "scheme": "the-psyche",
+    "extra": {
+      "router": {
+        "origin": "the-psyche://psyche.timrekelj.si"
+      },
+      "eas": {
+        "projectId": "1acecf81-2b88-4031-b2e7-4b1a317e22d3"
+      }
+    },
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "assetBundlePatterns": [
@@ -19,7 +27,12 @@
       }
     },
     "plugins": [
-      "expo-router",
+      [
+        "expo-router",
+        {
+          "origin": "the-psyche://psyche.timrekelj.si"
+        }
+      ],
       [
         "expo-splash-screen",
         {
@@ -36,12 +49,6 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    },
-    "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "1acecf81-2b88-4031-b2e7-4b1a317e22d3"
-      }
     },
     "owner": "tim_rekelj"
   }

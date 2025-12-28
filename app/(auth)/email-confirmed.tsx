@@ -8,7 +8,7 @@ export default function EmailConfirmedScreen() {
     const { isDark } = useTheme();
 
     const navigateToLogin = () => {
-        router.replace('/(auth)/login');
+        router.replace('/login');
     };
 
     return (

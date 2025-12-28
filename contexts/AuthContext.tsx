@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import * as Linking from 'expo-linking';
 import { router } from 'expo-router';
 import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '../lib/supabase';
 
 interface AuthContextType {
     user: User | null;
@@ -36,7 +36,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [showSplash, setShowSplash] = useState(true);
     const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
-    const deepLinkOptions = { scheme: 'psyche', host: 'psyche.timrekelj.si' };
+    // Configure deep link origin to match app.json
+    const deepLinkOptions = {
+        scheme: 'the-psyche',
+        host: 'psyche.timrekelj.si',
+    };
     const createAppDeepLink = (path: string) =>
         Linking.createURL(path, deepLinkOptions);
 
@@ -72,9 +76,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 return;
             }
 
-            const { data, error } = await supabase.auth.exchangeCodeForSession(
-                url
-            );
+            const { data, error } =
+                await supabase.auth.exchangeCodeForSession(url);
 
             if (error) {
                 console.error('Error exchanging code for session:', error);
@@ -88,7 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setUser(data.session.user);
             }
 
-            router.replace('/(auth)/reset-password');
+            router.replace('/reset-password');
         };
 
         const urlListener = Linking.addEventListener('url', ({ url }) =>
@@ -123,7 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             email,
             password,
             options: {
-                emailRedirectTo: createAppDeepLink('/(auth)/email-confirmed'),
+                emailRedirectTo: createAppDeepLink('/email-confirmed'),
                 data: {
                     first_name: firstName,
                     last_name: lastName,
@@ -160,7 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const resetPassword = async (email: string) => {
-        const redirectTo = createAppDeepLink('/(auth)/reset-password');
+        const redirectTo = createAppDeepLink('/reset-password');
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
             redirectTo,
         });
@@ -205,7 +208,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             {
                 email: newEmail,
             },
-            { emailRedirectTo: createAppDeepLink('/(auth)/email-confirmed') }
+            { emailRedirectTo: createAppDeepLink('/email-confirmed') }
         );
 
         if (error) {

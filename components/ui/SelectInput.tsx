@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { EmotionType } from '@/contexts/CryingContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { EmotionType } from '../../contexts/CryingContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface SelectOption {
     value: EmotionType;

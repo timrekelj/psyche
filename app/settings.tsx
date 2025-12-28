@@ -10,9 +10,9 @@ import {
     Platform,
 } from 'react-native';
 import { router } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '@/constants/legal';
+import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '../constants/legal';
 import { openExternalLink } from '@/lib/openLink';
 import { Button, TextInput } from '@/components/ui';
 import LoadingScreen from '@/components/screens/LoadingScreen';
@@ -233,7 +233,7 @@ export default function SettingsScreen() {
 
     useEffect(() => {
         if (!loading && !user) {
-            router.replace('/(auth)/login');
+            router.replace('/login');
         }
     }, [user, loading]);
 
@@ -267,7 +267,7 @@ export default function SettingsScreen() {
                 onPress: async () => {
                     try {
                         await signOut();
-                        router.replace('/(auth)/login');
+                        router.replace('/login');
                     } catch (error: any) {
                         Alert.alert(
                             'Error',
@@ -370,7 +370,7 @@ export default function SettingsScreen() {
                                     onPress: async () => {
                                         try {
                                             await deleteAccount();
-                                            router.replace('/(auth)/login');
+                                            router.replace('/login');
                                         } catch (error: any) {
                                             Alert.alert(
                                                 'Error',

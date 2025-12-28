@@ -1,8 +1,8 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { useTheme } from '@/contexts/ThemeContext';
-import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '@/constants/legal';
-import { openExternalLink } from '@/lib/openLink';
+import { useTheme } from '../contexts/ThemeContext';
+import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '../constants/legal';
+import { openExternalLink } from '../lib/openLink';
 import { Text } from './ui';
 
 interface LegalLinksProps {

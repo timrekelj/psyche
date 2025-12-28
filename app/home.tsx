@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import LoadingScreen from '@/components/screens/LoadingScreen';
+import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+import LoadingScreen from '../components/screens/LoadingScreen';
 import { Button } from '@/components/ui';
 import { BookText, Cog } from 'lucide-react-native';
 
@@ -14,7 +14,7 @@ export default function HomeScreen() {
     useEffect(() => {
         // Redirect to login if not authenticated
         if (!loading && !user) {
-            router.replace('/(auth)/login');
+            router.replace('/login');
         }
     }, [user, loading]);
 

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import { CryingService, CryEntry } from '@/lib/cryingService';
+import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import { CryingService, CryEntry } from '../../lib/cryingService';
 import { Button } from '@/components/ui';
 import LoadingScreen from '@/components/screens/LoadingScreen';
 import { emotionLabels, formatRelativeDate } from '@/lib/reflectionUtils';
@@ -17,7 +17,7 @@ export default function ReflectionDetailScreen() {
 
     useEffect(() => {
         if (!user) {
-            router.replace('/(auth)/login');
+            router.replace('/login');
             return;
         }
 

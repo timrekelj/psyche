@@ -1,7 +1,7 @@
 import { Redirect } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import SplashScreen from '@/components/screens/SplashScreen';
+import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+import SplashScreen from '../components/screens/SplashScreen';
 import LoadingScreen from '@/components/screens/LoadingScreen';
 
 export default function Index() {
@@ -23,5 +23,5 @@ export default function Index() {
 
     // If authenticated, redirect to /home
     // If not authenticated, redirect to login
-    return <Redirect href={user ? '/home' : '/(auth)/login'} />;
+    return <Redirect href={user ? '/home' : '/login'} />;
 }

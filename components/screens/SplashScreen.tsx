@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Animated, Image, Text } from 'react-native';
 import { Easing } from 'react-native-reanimated';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function SplashScreen() {
     const { isDark } = useTheme();

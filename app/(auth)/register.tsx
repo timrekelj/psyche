@@ -7,9 +7,9 @@ import {
     Platform,
 } from 'react-native';
 import { router } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
-import LegalLinks from '@/components/LegalLinks';
+import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import LegalLinks from '../../components/LegalLinks';
 import { Button, TextInput, Text } from '@/components/ui';
 
 export default function RegisterScreen() {
@@ -49,7 +49,7 @@ export default function RegisterScreen() {
         setError('');
         try {
             await signUp(email, password, firstName, lastName);
-            router.replace('/(auth)/confirmation');
+            router.replace('/confirmation');
         } catch (error: any) {
             setError(error.message || 'Registration failed. Please try again.');
         } finally {
@@ -58,7 +58,7 @@ export default function RegisterScreen() {
     };
 
     const navigateToLogin = () => {
-        router.replace('/(auth)/login');
+        router.replace('/login');
     };
 
     const clearError = () => {
