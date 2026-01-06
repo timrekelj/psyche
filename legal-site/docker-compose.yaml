@@ -1,7 +1,0 @@
-services:
-  kanati:
-    build: .
-    container_name: psyche-legal
-    restart: unless-stopped
-    ports:
-        - 5173:5173

@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    Modal,
-    Pressable,
-    Animated,
-} from 'react-native';
+import { Modal, Platform, Text, TouchableOpacity, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTheme } from '../../contexts/ThemeContext';
 import Button from './Button';
@@ -24,44 +17,22 @@ export default function DatePicker({
 }: DatePickerProps) {
     const { isDark } = useTheme();
     const [isVisible, setIsVisible] = useState(false);
-    const [slideAnim] = useState(new Animated.Value(0));
     const [tempDate, setTempDate] = useState<Date | null>(null);
 
-    const showBottomSheet = () => {
+    const openPicker = () => {
         setTempDate(value || new Date());
         setIsVisible(true);
-        Animated.spring(slideAnim, {
-            toValue: 1,
-            useNativeDriver: true,
-            tension: 50,
-            friction: 10,
-        }).start();
     };
 
-    const hideBottomSheet = () => {
-        Animated.spring(slideAnim, {
-            toValue: 0,
-            useNativeDriver: true,
-            tension: 50,
-            friction: 10,
-        }).start(() => {
-            setIsVisible(false);
-            setTempDate(null);
-        });
+    const closePicker = () => {
+        setIsVisible(false);
+        setTempDate(null);
     };
 
-    const onDateChange = (event: any, selectedDate?: Date) => {
-        if (selectedDate && event.type !== 'dismissed') {
-            // Only update the temporary date, don't call onChange yet
-            setTempDate(selectedDate);
-        }
-    };
-
-    const handleConfirm = () => {
-        if (tempDate) {
-            onChange(tempDate);
-        }
-        hideBottomSheet();
+    const handleConfirm = (selectedDate: Date) => {
+        setTempDate(selectedDate);
+        onChange(selectedDate);
+        closePicker();
     };
 
     const formatDate = (date: Date) => {
@@ -73,15 +44,10 @@ export default function DatePicker({
         });
     };
 
-    const translateY = slideAnim.interpolate({
-        inputRange: [0, 1],
-        outputRange: [400, 0],
-    });
-
     return (
         <View>
             <TouchableOpacity
-                onPress={showBottomSheet}
+                onPress={openPicker}
                 className={`rounded-lg border px-4 py-4 ${
                     isDark
                         ? 'border-gray-600 bg-black'
@@ -107,39 +73,39 @@ export default function DatePicker({
                 visible={isVisible}
                 transparent
                 animationType="fade"
-                onRequestClose={hideBottomSheet}
+                onRequestClose={closePicker}
             >
-                <View className="flex-1 justify-end bg-black/50">
-                    <Pressable className="flex-1" onPress={hideBottomSheet} />
-
-                    <Animated.View
-                        style={{
-                            transform: [{ translateY }],
-                        }}
-                        className={`rounded-t-2xl px-6 pb-10 pt-8 ${
-                            isDark ? 'bg-black' : 'bg-white'
+                <View className="flex-1 items-center justify-center bg-black/50 px-6">
+                    <View
+                        className={`w-full rounded-2xl p-4 ${
+                            isDark ? 'bg-neutral-900' : 'bg-white'
                         }`}
                     >
-                        <Text
-                            className={`mb-6 text-center font-instrument-serif text-xl ${
-                                isDark ? 'text-white' : 'text-black'
-                            }`}
-                        >
-                            Select Date
-                        </Text>
+                        <DateTimePicker
+                            value={tempDate || value || new Date()}
+                            mode="date"
+                            display={
+                                Platform.OS === 'ios' ? 'spinner' : 'default'
+                            }
+                            themeVariant={isDark ? 'dark' : 'light'}
+                            onChange={(_, selectedDate) =>
+                                setTempDate(
+                                    selectedDate || tempDate || new Date()
+                                )
+                            }
+                        />
 
-                        <View className="items-center">
-                            <DateTimePicker
-                                value={tempDate || value || new Date()}
-                                mode="date"
-                                display="spinner"
-                                onChange={onDateChange}
-                                textColor={isDark ? '#ffffff' : '#000000'}
-                            />
+                        <View className="mt-4 gap-3">
+                            <Button
+                                title="Confirm"
+                                onPress={() =>
+                                    handleConfirm(
+                                        tempDate || value || new Date()
+                                    )
+                                }
+                            ></Button>
                         </View>
-
-                        <Button onPress={handleConfirm} title="Confirm" />
-                    </Animated.View>
+                    </View>
                 </View>
             </Modal>
         </View>

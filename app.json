@@ -50,6 +50,9 @@
       "typedRoutes": true,
       "reactCompiler": true
     },
-    "owner": "tim_rekelj"
+    "owner": "tim_rekelj",
+    "android": {
+      "package": "si.timrekelj.thepsyche"
+    }
   }
 }

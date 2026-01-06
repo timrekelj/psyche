@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    Modal,
-    Pressable,
-    Animated,
-} from 'react-native';
+import { Modal, Platform, Text, TouchableOpacity, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTheme } from '../../contexts/ThemeContext';
 import Button from './Button';
@@ -24,55 +17,25 @@ export default function TimePicker({
 }: TimePickerProps) {
     const { isDark } = useTheme();
     const [isVisible, setIsVisible] = useState(false);
-    const [slideAnim] = useState(new Animated.Value(0));
     const [tempTime, setTempTime] = useState<Date | null>(null);
 
-    const showBottomSheet = () => {
+    const openPicker = () => {
         setTempTime(value || new Date());
         setIsVisible(true);
-        Animated.spring(slideAnim, {
-            toValue: 1,
-            useNativeDriver: true,
-            tension: 50,
-            friction: 10,
-        }).start();
     };
 
-    const hideBottomSheet = () => {
-        Animated.spring(slideAnim, {
-            toValue: 0,
-            useNativeDriver: true,
-            tension: 50,
-            friction: 8,
-        }).start(() => {
-            setIsVisible(false);
-            setTempTime(null);
-        });
+    const closePicker = () => {
+        setIsVisible(false);
+        setTempTime(null);
     };
 
-    const onTimeChange = (event: any, selectedTime?: Date) => {
-        if (selectedTime && event.type !== 'dismissed') {
-            // Only update the temporary time, don't call onChange yet
-            if (value) {
-                const newDateTime = new Date(value);
-                newDateTime.setHours(selectedTime.getHours());
-                newDateTime.setMinutes(selectedTime.getMinutes());
-                setTempTime(newDateTime);
-            } else {
-                // If no existing value, use today's date with selected time
-                const today = new Date();
-                today.setHours(selectedTime.getHours());
-                today.setMinutes(selectedTime.getMinutes());
-                setTempTime(today);
-            }
-        }
-    };
-
-    const handleConfirm = () => {
-        if (tempTime) {
-            onChange(tempTime);
-        }
-        hideBottomSheet();
+    const handleConfirm = (selectedTime: Date) => {
+        const base = value ? new Date(value) : new Date();
+        base.setHours(selectedTime.getHours());
+        base.setMinutes(selectedTime.getMinutes());
+        setTempTime(base);
+        onChange(base);
+        closePicker();
     };
 
     const formatTime = (date: Date) => {
@@ -83,15 +46,10 @@ export default function TimePicker({
         });
     };
 
-    const translateY = slideAnim.interpolate({
-        inputRange: [0, 1],
-        outputRange: [400, 0],
-    });
-
     return (
         <View>
             <TouchableOpacity
-                onPress={showBottomSheet}
+                onPress={openPicker}
                 className={`rounded-lg border px-4 py-4 ${
                     isDark
                         ? 'border-gray-600 bg-black'
@@ -117,40 +75,39 @@ export default function TimePicker({
                 visible={isVisible}
                 transparent
                 animationType="fade"
-                onRequestClose={hideBottomSheet}
+                onRequestClose={closePicker}
             >
-                <View className="flex-1 justify-end bg-black/50">
-                    <Pressable className="flex-1" onPress={hideBottomSheet} />
-
-                    <Animated.View
-                        style={{
-                            transform: [{ translateY }],
-                        }}
-                        className={`rounded-t-2xl px-6 pb-10 pt-8 ${
-                            isDark ? 'bg-black' : 'bg-white'
+                <View className="flex-1 items-center justify-center bg-black/50 px-6">
+                    <View
+                        className={`w-full rounded-2xl p-4 ${
+                            isDark ? 'bg-neutral-900' : 'bg-white'
                         }`}
                     >
-                        <Text
-                            className={`mb-6 text-center font-instrument-serif text-xl ${
-                                isDark ? 'text-white' : 'text-black'
-                            }`}
-                        >
-                            Select Time
-                        </Text>
+                        <DateTimePicker
+                            value={tempTime || value || new Date()}
+                            mode="time"
+                            display={
+                                Platform.OS === 'ios' ? 'spinner' : 'default'
+                            }
+                            themeVariant={isDark ? 'dark' : 'light'}
+                            onChange={(_, selectedDate) =>
+                                setTempTime(
+                                    selectedDate || tempTime || new Date()
+                                )
+                            }
+                        />
 
-                        <View className="items-center">
-                            <DateTimePicker
-                                value={tempTime || value || new Date()}
-                                mode="time"
-                                display="spinner"
-                                is24Hour={false}
-                                onChange={onTimeChange}
-                                textColor={isDark ? '#ffffff' : '#000000'}
-                            />
+                        <View className="mt-4 gap-3">
+                            <Button
+                                title="Confirm"
+                                onPress={() =>
+                                    handleConfirm(
+                                        tempTime || value || new Date()
+                                    )
+                                }
+                            ></Button>
                         </View>
-
-                        <Button onPress={handleConfirm} title="Confirm" />
-                    </Animated.View>
+                    </View>
                 </View>
             </Modal>
         </View>

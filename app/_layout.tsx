@@ -62,6 +62,7 @@ function RootLayoutContent() {
                 <Stack screenOptions={{ headerShown: false }}>
                     <Stack.Screen name="(auth)" />
                     <Stack.Screen name="home" />
+                    <Stack.Screen name="therapyst" />
                     <Stack.Screen name="crying" />
                     <Stack.Screen name="reflections" />
                     <Stack.Screen name="reflection" />

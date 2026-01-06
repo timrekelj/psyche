@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import LoadingScreen from '../components/screens/LoadingScreen';
 import { Button } from '@/components/ui';
-import { BookText, Cog } from 'lucide-react-native';
+import { BookText, Cog, MessageSquare } from 'lucide-react-native';
 
 export default function HomeScreen() {
     const { user, loading } = useAuth();
@@ -53,11 +53,24 @@ export default function HomeScreen() {
                     A gentle space to feel your emotions. I'm here to sit with
                     you through whatever you're experiencing.
                 </Text>
-                <Button
-                    className="w-full"
-                    title="Hi friend, I am here when you need to cry"
-                    onPress={() => router.push('/crying/step1_datetime')}
-                />
+                <View className="flex-row gap-3">
+                    <Button
+                        className="flex-1"
+                        title="start a new cry"
+                        onPress={() => router.push('/crying/step1_datetime')}
+                    />
+                    <TouchableOpacity
+                        onPress={() => router.push('/therapyst')}
+                        className={`items-center justify-center rounded-lg px-4 py-4 ${
+                            isDark ? 'bg-white' : 'bg-black'
+                        }`}
+                    >
+                        <MessageSquare
+                            size={18}
+                            color={isDark ? '#000000' : '#ffffff'}
+                        />
+                    </TouchableOpacity>
+                </View>
 
                 <TouchableOpacity
                     onPress={() => router.push('/reflections')}

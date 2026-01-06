@@ -72,15 +72,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         const handleDeepLink = async (url: string | null) => {
-            if (!url || !url.includes('type=recovery')) {
+            if (!url) return;
+
+            // Supabase sends recovery links with tokens in the hash fragment
+            // e.g. the-psyche://.../reset-password#access_token=...&refresh_token=...&type=recovery
+            const parsedUrl = new URL(url);
+            const hashParams = new URLSearchParams(
+                parsedUrl.hash.replace(/^#/, '')
+            );
+            const type = hashParams.get('type');
+            const accessToken = hashParams.get('access_token');
+            const refreshToken = hashParams.get('refresh_token');
+
+            if (type !== 'recovery') return;
+
+            if (!accessToken || !refreshToken) {
+                console.warn('Recovery link missing tokens.');
                 return;
             }
 
-            const { data, error } =
-                await supabase.auth.exchangeCodeForSession(url);
+            const { data, error } = await supabase.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken,
+            });
 
             if (error) {
-                console.error('Error exchanging code for session:', error);
+                console.error('Error setting session from recovery link:', error);
                 return;
             }
 
