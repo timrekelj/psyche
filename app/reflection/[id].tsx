@@ -43,13 +43,32 @@ export default function ReflectionDetailScreen() {
                     Alert.alert('Error', 'Reflection not found');
                     router.back();
                 }
-            } else {
-                Alert.alert(
-                    'Error',
-                    result.error || 'Failed to load reflection'
-                );
-                router.back();
+                return;
             }
+
+            if (
+                result.code === 'ENCRYPTION_KEY_REQUIRED' ||
+                result.code === 'ENCRYPTION_KEY_BACKUP_REQUIRED' ||
+                result.code === 'ENCRYPTION_WRONG_KEY'
+            ) {
+                Alert.alert(
+                    'Encryption Required',
+                    result.error || 'Set up your recovery key to continue.',
+                    [
+                        {
+                            text: 'Open Recovery Key',
+                            onPress: () => router.replace('/encryption-key' as any),
+                        },
+                    ]
+                );
+                return;
+            }
+
+            Alert.alert(
+                'Error',
+                result.error || 'Failed to load reflection'
+            );
+            router.back();
         } catch (error) {
             console.error('Error loading entry:', error);
             Alert.alert('Error', 'An unexpected error occurred');

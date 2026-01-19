@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     TextInput as RNTextInput,
@@ -22,6 +22,12 @@ export default function TextInput({
 }: CustomTextInputProps) {
     const { isDark } = useTheme();
     const [actualValue, setActualValue] = useState(value || '');
+    useEffect(() => {
+        if (value === undefined) return;
+        if (value !== actualValue) {
+            setActualValue(value);
+        }
+    }, [value, actualValue]);
 
     const baseInputStyles =
         'border border-[.5px] rounded-lg px-5 py-4 font-instrument-serif';

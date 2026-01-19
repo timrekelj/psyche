@@ -21,6 +21,7 @@ import '../global.css';
 import { AuthProvider } from '../contexts/AuthContext';
 import { CryingProvider } from '../contexts/CryingContext';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
+import EncryptionGate from '@/components/EncryptionGate';
 
 // Configure Reanimated logger
 configureReanimatedLogger({
@@ -46,7 +47,7 @@ function RootLayoutContent() {
             ).toString();
             const destination = searchParams ? `${path}?${searchParams}` : path;
 
-            router.replace(destination);
+            router.replace(destination as any);
         };
 
         Linking.getInitialURL().then(handleUrl);
@@ -58,6 +59,7 @@ function RootLayoutContent() {
 
     return (
         <View className={`flex-1 ${isDark ? 'dark' : ''}`}>
+            <EncryptionGate />
             <NavigationThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
                 <Stack screenOptions={{ headerShown: false }}>
                     <Stack.Screen name="(auth)" />
@@ -67,6 +69,8 @@ function RootLayoutContent() {
                     <Stack.Screen name="reflections" />
                     <Stack.Screen name="reflection" />
                     <Stack.Screen name="settings" />
+                    <Stack.Screen name="encryption-key-save" />
+                    <Stack.Screen name="encryption-key-import" />
                 </Stack>
                 <StatusBar style={isDark ? 'light' : 'dark'} />
             </NavigationThemeProvider>

@@ -263,7 +263,7 @@ export default function SettingsScreen() {
             { text: 'Cancel', style: 'cancel' },
             {
                 text: 'Logout',
-                style: 'delete',
+                style: 'destructive',
                 onPress: async () => {
                     try {
                         await signOut();
@@ -366,7 +366,7 @@ export default function SettingsScreen() {
                                 { text: 'Cancel', style: 'cancel' },
                                 {
                                     text: 'Yes, Delete My Account',
-                                    style: 'delete',
+                                     style: 'destructive',
                                     onPress: async () => {
                                         try {
                                             await deleteAccount();

@@ -1,5 +1,11 @@
 import { supabase } from './supabase';
 import { CryingSessionData, EmotionType } from '@/contexts/CryingContext';
+import {
+    decryptForUser,
+    encryptForUser,
+    MissingEncryptionKeyError,
+} from './clientEncryption';
+import { EncryptionStatus, getEncryptionStatus } from './userEncryption';
 
 export interface CryEntry {
     id?: string;
@@ -9,16 +15,120 @@ export interface CryEntry {
     feeling_intensity: number;
     thoughts: string;
     recent_smile_thing: string;
-    created_at: string;
+    created_at?: string;
     updated_at?: string;
+}
+
+type CryRow = {
+    id?: string;
+    user_id: string;
+    cried_at: string;
+    emotions_enc: string;
+    feeling_intensity_enc: string;
+    thoughts_enc: string;
+    recent_smile_thing_enc: string;
+    created_at?: string;
+    updated_at?: string;
+};
+
+export type CryingServiceErrorCode =
+    | 'ENCRYPTION_KEY_REQUIRED'
+    | 'ENCRYPTION_KEY_BACKUP_REQUIRED'
+    | 'ENCRYPTION_WRONG_KEY'
+    | 'UNKNOWN';
+
+function encryptionStatusToError(status: EncryptionStatus): {
+    code: CryingServiceErrorCode;
+    message: string;
+} | null {
+    if (status.status === 'ready') return null;
+
+    if (status.status === 'needs_backup') {
+        return {
+            code: 'ENCRYPTION_KEY_BACKUP_REQUIRED',
+            message: 'Back up your recovery key to continue.',
+        };
+    }
+
+    if (status.status === 'needs_import') {
+        return {
+            code: 'ENCRYPTION_KEY_REQUIRED',
+            message: 'Import your recovery key to access encrypted data.',
+        };
+    }
+
+    if (status.status === 'needs_new_key') {
+        return {
+            code: 'ENCRYPTION_KEY_REQUIRED',
+            message: 'Create a new recovery key to access encrypted data.',
+        };
+    }
+
+    return {
+        code: 'ENCRYPTION_WRONG_KEY',
+        message: 'The recovery key on this device does not match your account.',
+    };
+}
+
+function parseEmotionType(value: string): EmotionType {
+    const allowed: EmotionType[] = [
+        'OVERWHELMED',
+        'MISSING_SOMEONE',
+        'STRESS',
+        'LONELINESS',
+        'RELATIONSHIP_ISSUES',
+        'SADNESS',
+        'JOY',
+        'PROUD',
+        'NO_REASON',
+    ];
+
+    if ((allowed as string[]).includes(value)) {
+        return value as EmotionType;
+    }
+
+    return 'NO_REASON';
+}
+
+async function decryptRow(userId: string, row: CryRow): Promise<CryEntry> {
+    const emotions = await decryptForUser(userId, row.emotions_enc);
+    const intensity = await decryptForUser(userId, row.feeling_intensity_enc);
+    const parsedIntensity = Number.parseInt(intensity, 10);
+
+    return {
+        id: row.id,
+        user_id: row.user_id,
+        cried_at: row.cried_at,
+        emotions: parseEmotionType(emotions),
+        feeling_intensity: Number.isFinite(parsedIntensity) ? parsedIntensity : 0,
+        thoughts: await decryptForUser(userId, row.thoughts_enc),
+        recent_smile_thing: await decryptForUser(userId, row.recent_smile_thing_enc),
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+    };
 }
 
 export class CryingService {
     static async saveCryingSession(
         userId: string,
         sessionData: CryingSessionData
-    ): Promise<{ success: boolean; data?: CryEntry; error?: string }> {
+    ): Promise<{
+        success: boolean;
+        data?: CryEntry;
+        error?: string;
+        code?: CryingServiceErrorCode;
+    }> {
         try {
+            const encryptionStatus = await getEncryptionStatus(userId);
+            const encryptionError = encryptionStatusToError(encryptionStatus);
+            if (encryptionError) {
+                return {
+                    success: false,
+                    code: encryptionError.code,
+                    error: encryptionError.message,
+                };
+            }
+
             // Validate session data
             if (
                 !sessionData.criedAt ||
@@ -33,13 +143,22 @@ export class CryingService {
             }
 
             // Prepare data for database
-            const cryData: Omit<CryEntry, 'id'> = {
+            const cryData: Omit<CryRow, 'id'> = {
                 user_id: userId,
                 cried_at: sessionData.criedAt.toISOString(),
-                emotions: sessionData.emotions,
-                feeling_intensity: sessionData.feelingIntensity,
-                thoughts: sessionData.thoughts.trim(),
-                recent_smile_thing: sessionData.recentSmileThing.trim(),
+                emotions_enc: await encryptForUser(userId, sessionData.emotions),
+                feeling_intensity_enc: await encryptForUser(
+                    userId,
+                    String(sessionData.feelingIntensity)
+                ),
+                thoughts_enc: await encryptForUser(
+                    userId,
+                    sessionData.thoughts.trim()
+                ),
+                recent_smile_thing_enc: await encryptForUser(
+                    userId,
+                    sessionData.recentSmileThing.trim()
+                ),
             };
 
             // Insert into Supabase
@@ -57,14 +176,25 @@ export class CryingService {
                 };
             }
 
+            const decrypted = await decryptRow(userId, data as CryRow);
+
             return {
                 success: true,
-                data: data as CryEntry,
+                data: decrypted,
             };
         } catch (error) {
+            if (error instanceof MissingEncryptionKeyError) {
+                return {
+                    success: false,
+                    code: 'ENCRYPTION_KEY_REQUIRED',
+                    error: 'Import your recovery key to access encrypted data.',
+                };
+            }
+
             console.error('Unexpected error saving crying session:', error);
             return {
                 success: false,
+                code: 'UNKNOWN',
                 error: 'An unexpected error occurred',
             };
         }
@@ -73,8 +203,23 @@ export class CryingService {
     static async getUserCryingSessions(
         userId: string,
         limit: number = 50
-    ): Promise<{ success: boolean; data?: CryEntry[]; error?: string }> {
+    ): Promise<{
+        success: boolean;
+        data?: CryEntry[];
+        error?: string;
+        code?: CryingServiceErrorCode;
+    }> {
         try {
+            const encryptionStatus = await getEncryptionStatus(userId);
+            const encryptionError = encryptionStatusToError(encryptionStatus);
+            if (encryptionError) {
+                return {
+                    success: false,
+                    code: encryptionError.code,
+                    error: encryptionError.message,
+                };
+            }
+
             const { data, error } = await supabase
                 .from('cries')
                 .select('*')
@@ -90,14 +235,28 @@ export class CryingService {
                 };
             }
 
+            const rows = (data ?? []) as CryRow[];
+            const decrypted = await Promise.all(
+                rows.map((row) => decryptRow(userId, row))
+            );
+
             return {
                 success: true,
-                data: data as CryEntry[],
+                data: decrypted,
             };
         } catch (error) {
+            if (error instanceof MissingEncryptionKeyError) {
+                return {
+                    success: false,
+                    code: 'ENCRYPTION_KEY_REQUIRED',
+                    error: 'Import your recovery key to access encrypted data.',
+                };
+            }
+
             console.error('Unexpected error fetching crying sessions:', error);
             return {
                 success: false,
+                code: 'UNKNOWN',
                 error: 'An unexpected error occurred',
             };
         }

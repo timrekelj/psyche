@@ -1,0 +1,11 @@
+[
+    {
+        "label": "run_expo",
+        "command": "npx expo start --dev-client --clear",
+        "use_new_terminal": true,
+        "shell": "system",
+        "reveal": "no_focus",
+        "hide": "on_success",
+        "show_command": false
+    },
+]

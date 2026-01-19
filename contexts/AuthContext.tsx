@@ -3,6 +3,7 @@ import * as Linking from 'expo-linking';
 import { router } from 'expo-router';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { setEncryptionSetupComplete } from '@/lib/encryptionDevice';
 
 interface AuthContextType {
     user: User | null;
@@ -168,6 +169,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const signOut = async () => {
+        if (user?.id) {
+            await setEncryptionSetupComplete(user.id, false);
+        }
         const { error } = await supabase.auth.signOut();
         if (error) {
             throw error;
@@ -248,7 +252,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (user) {
             // Delete crying sessions
             const { error: dataError } = await supabase
-                .from('crying_sessions')
+                .from('cries')
                 .delete()
                 .eq('user_id', user.id);
 

@@ -29,12 +29,31 @@ export default function ReflectionsScreen() {
 
             if (result.success && result.data) {
                 setEntries(result.data);
-            } else {
-                Alert.alert(
-                    'Error',
-                    result.error || 'Failed to load your reflections'
-                );
+                return;
             }
+
+            if (
+                result.code === 'ENCRYPTION_KEY_REQUIRED' ||
+                result.code === 'ENCRYPTION_KEY_BACKUP_REQUIRED' ||
+                result.code === 'ENCRYPTION_WRONG_KEY'
+            ) {
+                Alert.alert(
+                    'Encryption Required',
+                    result.error || 'Set up your recovery key to continue.',
+                    [
+                        {
+                            text: 'Open Recovery Key',
+                            onPress: () => router.push('/encryption-key' as any),
+                        },
+                    ]
+                );
+                return;
+            }
+
+            Alert.alert(
+                'Error',
+                result.error || 'Failed to load your reflections'
+            );
         } catch (error) {
             console.error('Error loading entries:', error);
             Alert.alert(

@@ -50,24 +50,42 @@ export default function CryingStep4() {
 
             if (result.success) {
                 router.push('/crying/step5_session_saved');
-            } else {
+                return;
+            }
+
+            if (
+                result.code === 'ENCRYPTION_KEY_REQUIRED' ||
+                result.code === 'ENCRYPTION_KEY_BACKUP_REQUIRED' ||
+                result.code === 'ENCRYPTION_WRONG_KEY'
+            ) {
                 Alert.alert(
-                    'Error Saving',
+                    'Encryption Required',
                     result.error ||
-                        'Failed to save your session. Please try again.',
+                        'You need to set up your recovery key before continuing.',
                     [
                         {
-                            text: 'Try Again',
-                            onPress: () => setIsLoading(false),
-                        },
-                        {
-                            text: 'Skip for Now',
-                            onPress: () =>
-                                router.push('/crying/step5_session_saved'),
+                            text: 'Open Recovery Key',
+                            onPress: () => router.push('/encryption-key' as any),
                         },
                     ]
                 );
+                return;
             }
+
+            Alert.alert(
+                'Error Saving',
+                result.error || 'Failed to save your session. Please try again.',
+                [
+                    {
+                        text: 'Try Again',
+                        onPress: () => setIsLoading(false),
+                    },
+                    {
+                        text: 'Skip for Now',
+                        onPress: () => router.push('/crying/step5_session_saved'),
+                    },
+                ]
+            );
         } catch (error) {
             console.error('Error in handleNext:', error);
             Alert.alert(
