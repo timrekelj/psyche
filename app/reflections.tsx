@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, ScrollView, Alert, RefreshControl } from 'react-native';
 import { router } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { CryingService, CryEntry } from '../lib/cryingService';
@@ -43,7 +44,8 @@ export default function ReflectionsScreen() {
                     [
                         {
                             text: 'Open Recovery Key',
-                            onPress: () => router.push('/encryption-key' as any),
+                            onPress: () =>
+                                router.push('/encryption-key-import' as any),
                         },
                     ]
                 );
@@ -74,6 +76,13 @@ export default function ReflectionsScreen() {
 
         loadEntries();
     }, [user]);
+
+    useFocusEffect(
+        useCallback(() => {
+            if (!user) return;
+            loadEntries(true);
+        }, [user])
+    );
 
     const handleRefresh = () => {
         loadEntries(true);

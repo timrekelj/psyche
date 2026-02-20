@@ -43,7 +43,11 @@ function candidateStorageKey(userId: string): string {
 
 async function loadKeyHex(storageKey: string): Promise<string | null> {
     try {
-        return await SecureStore.getItemAsync(storageKey);
+        const result = await SecureStore.getItemAsync(storageKey);
+        if (result) {
+            console.log('Debug - Loaded key from storage, length:', result.length);
+        }
+        return result;
     } catch {
         return null;
     }
@@ -131,8 +135,33 @@ export function createKeyCheckCiphertext(userId: string, key: Uint8Array): strin
 }
 
 export function verifyKeyCheckCiphertext(userId: string, key: Uint8Array, value: string): boolean {
-    const decrypted = decryptWithKey(key, value);
-    return decrypted === `${KEY_CHECK_PLAINTEXT_PREFIX}:${userId}`;
+    try {
+        const decrypted = decryptWithKey(key, value);
+        const expected = `${KEY_CHECK_PLAINTEXT_PREFIX}:${userId}`;
+        return decrypted === expected;
+    } catch (error) {
+        console.error('Key verification failed:', error);
+        return false;
+    }
+}
+
+/**
+ * Estimates the maximum encrypted size for a given plaintext
+ * Used to validate that data will fit in database columns before encryption
+ * @param plaintext The text to be encrypted
+ * @returns Estimated maximum size of encrypted data in characters
+ */
+export function estimateEncryptedSize(plaintext: string): number {
+    // XChaCha20-Poly1305 adds 16 bytes authentication tag
+    // Hex encoding doubles the size
+    // Plus prefix and nonce (24 bytes -> 48 hex chars)
+    const plaintextBytes = new TextEncoder().encode(plaintext).length;
+    const ciphertextBytes = plaintextBytes + 16; // plaintext + auth tag
+    const ciphertextHex = ciphertextBytes * 2; // hex encoding
+    const nonceHex = 24 * 2; // 24 byte nonce -> 48 hex chars
+    const prefix = CIPHER_PREFIX.length + 1; // "enc_v1:" + colon
+
+    return prefix + nonceHex + ciphertextHex;
 }
 
 export function encryptWithKey(key: Uint8Array, plaintext: string): string {
@@ -140,7 +169,8 @@ export function encryptWithKey(key: Uint8Array, plaintext: string): string {
     const cipher = xchacha20poly1305(key, nonce);
     const messageBytes = new TextEncoder().encode(plaintext);
     const ciphertext = cipher.encrypt(messageBytes);
-    return `${CIPHER_PREFIX}:${bytesToHex(nonce)}:${bytesToHex(ciphertext)}`;
+    const result = `${CIPHER_PREFIX}:${bytesToHex(nonce)}:${bytesToHex(ciphertext)}`;
+    return result;
 }
 
 export function decryptWithKey(key: Uint8Array, value: string): string {
@@ -155,15 +185,71 @@ export function decryptWithKey(key: Uint8Array, value: string): string {
 
     const nonceHex = parts[1];
     const ciphertextHex = parts[2];
-    if (!isValidHex(nonceHex, 24) || !isValidHex(ciphertextHex)) {
-        throw new Error('Invalid ciphertext encoding');
+
+    // Enhanced validation with better error messages
+    let validationPassed = true;
+    let errorMessage = 'Invalid ciphertext encoding';
+
+    if (!isValidHex(nonceHex, 24)) {
+        console.error('Invalid nonce hex. Length:', nonceHex.length, 'Content:', nonceHex);
+        errorMessage = 'Invalid nonce encoding';
+        validationPassed = false;
     }
 
-    const nonce = hexToBytes(nonceHex);
-    const ciphertext = hexToBytes(ciphertextHex);
-    const cipher = xchacha20poly1305(key, nonce);
-    const plaintext = cipher.decrypt(ciphertext);
-    return new TextDecoder().decode(plaintext);
+    if (!isValidHex(ciphertextHex)) {
+        console.error('Invalid ciphertext hex. Length:', ciphertextHex.length, 'First 50 chars:', ciphertextHex.substring(0, 50));
+        errorMessage = 'Invalid ciphertext encoding';
+        validationPassed = false;
+    }
+
+    // Check for potential truncation
+    if (ciphertextHex.length < 32) {
+        console.error('Ciphertext appears truncated. Length:', ciphertextHex.length);
+        errorMessage = 'Ciphertext appears truncated - database column may be too small';
+        validationPassed = false;
+    }
+
+    // Check if ciphertext length is suspicious (likely truncated)
+    if (ciphertextHex.length % 2 !== 0) {
+        console.error('Ciphertext has odd length, likely corrupted. Length:', ciphertextHex.length);
+        errorMessage = 'Ciphertext has odd length - likely corrupted or truncated';
+        validationPassed = false;
+    }
+
+    // Check for common database truncation patterns
+    if (ciphertextHex.length === 255 || ciphertextHex.length === 512 || ciphertextHex.length === 1024) {
+        console.error('Ciphertext length matches common database limit. Length:', ciphertextHex.length);
+        errorMessage = `Ciphertext length (${ciphertextHex.length}) suggests database column truncation`;
+        validationPassed = false;
+    }
+
+    if (!validationPassed) {
+        // Provide more detailed guidance for database issues
+        const detailedMessage = `${errorMessage}.
+
+Possible solutions:
+1. Check database column sizes for encrypted fields (content_enc, role_enc, etc.)
+2. Minimum recommended size: 1000+ characters for TEXT fields
+3. Run database migration: ALTER TABLE chat_messages ALTER COLUMN content_enc TYPE TEXT;
+4. Run database migration: ALTER TABLE chat_messages ALTER COLUMN role_enc TYPE TEXT;
+5. If data is not critical, clear and re-encrypt affected records
+6. Check for existing database migrations that may need to be applied`;
+        throw new Error(detailedMessage);
+    }
+
+    try {
+        const nonce = hexToBytes(nonceHex);
+        const ciphertext = hexToBytes(ciphertextHex);
+        const cipher = xchacha20poly1305(key, nonce);
+        const plaintext = cipher.decrypt(ciphertext);
+        return new TextDecoder().decode(plaintext);
+    } catch (error) {
+        console.error('Decryption failed:', error);
+        if (error instanceof Error && error.message.includes('invalid tag')) {
+            throw new Error('Decryption failed: invalid tag. Possible causes: wrong key, corrupted data, or tampered ciphertext.');
+        }
+        throw new Error(`Decryption failed: ${error instanceof Error ? error.message : 'unknown error'}`);
+    }
 }
 
 export async function encryptForUser(userId: string, plaintext: string): Promise<string> {

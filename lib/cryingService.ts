@@ -261,4 +261,134 @@ export class CryingService {
             };
         }
     }
+
+    static async updateCryingSession(
+        userId: string,
+        entryId: string,
+        sessionData: CryingSessionData
+    ): Promise<{
+        success: boolean;
+        data?: CryEntry;
+        error?: string;
+        code?: CryingServiceErrorCode;
+    }> {
+        try {
+            const encryptionStatus = await getEncryptionStatus(userId);
+            const encryptionError = encryptionStatusToError(encryptionStatus);
+            if (encryptionError) {
+                return {
+                    success: false,
+                    code: encryptionError.code,
+                    error: encryptionError.message,
+                };
+            }
+
+            if (
+                !sessionData.criedAt ||
+                !sessionData.emotions ||
+                sessionData.feelingIntensity === null ||
+                !sessionData.recentSmileThing.trim()
+            ) {
+                return {
+                    success: false,
+                    error: 'Incomplete session data',
+                };
+            }
+
+            const cryData: Partial<CryRow> = {
+                cried_at: sessionData.criedAt.toISOString(),
+                emotions_enc: await encryptForUser(userId, sessionData.emotions),
+                feeling_intensity_enc: await encryptForUser(
+                    userId,
+                    String(sessionData.feelingIntensity)
+                ),
+                thoughts_enc: await encryptForUser(
+                    userId,
+                    sessionData.thoughts.trim()
+                ),
+                recent_smile_thing_enc: await encryptForUser(
+                    userId,
+                    sessionData.recentSmileThing.trim()
+                ),
+            };
+
+            const { data, error } = await supabase
+                .from('cries')
+                .update(cryData)
+                .eq('id', entryId)
+                .eq('user_id', userId)
+                .select()
+                .single();
+
+            if (error) {
+                console.error('Error updating crying session:', error);
+                return {
+                    success: false,
+                    error: error.message,
+                };
+            }
+
+            const decrypted = await decryptRow(userId, data as CryRow);
+
+            return {
+                success: true,
+                data: decrypted,
+            };
+        } catch (error) {
+            if (error instanceof MissingEncryptionKeyError) {
+                return {
+                    success: false,
+                    code: 'ENCRYPTION_KEY_REQUIRED',
+                    error: 'Import your recovery key to access encrypted data.',
+                };
+            }
+
+            console.error('Unexpected error updating crying session:', error);
+            return {
+                success: false,
+                code: 'UNKNOWN',
+                error: 'An unexpected error occurred',
+            };
+        }
+    }
+
+    static async deleteCryingSession(
+        userId: string,
+        entryId: string
+    ): Promise<{
+        success: boolean;
+        error?: string;
+    }> {
+        try {
+            const { data, error } = await supabase
+                .from('cries')
+                .delete()
+                .eq('id', entryId)
+                .eq('user_id', userId)
+                .select('id');
+
+            if (error) {
+                console.error('Error deleting crying session:', error);
+                return {
+                    success: false,
+                    error: error.message,
+                };
+            }
+
+            if (!data || data.length === 0) {
+                return {
+                    success: false,
+                    error: 'Reflection not found',
+                };
+            }
+
+            return { success: true };
+        } catch (error) {
+            console.error('Unexpected error deleting crying session:', error);
+            return {
+                success: false,
+                error: 'An unexpected error occurred',
+            };
+        }
+    }
 }

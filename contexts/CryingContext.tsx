@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import type { CryEntry } from '@/lib/cryingService';
 
 export type EmotionType =
     | 'OVERWHELMED'
@@ -21,10 +22,13 @@ export interface CryingSessionData {
 
 interface CryingContextType {
     sessionData: CryingSessionData;
+    editingEntryId: string | null;
     updateCriedAt: (date: Date) => void;
     updateEmotions: (emotion: EmotionType) => void;
     updateIntensityAndThoughts: (intensity: number, thoughts: string) => void;
     updateRecentSmileThing: (text: string) => void;
+    startEditing: (entry: CryEntry) => void;
+    clearEditing: () => void;
     resetSession: () => void;
     isSessionComplete: () => boolean;
 }
@@ -42,6 +46,7 @@ const CryingContext = createContext<CryingContextType | undefined>(undefined);
 export function CryingProvider({ children }: { children: React.ReactNode }) {
     const [sessionData, setSessionData] =
         useState<CryingSessionData>(initialSessionData);
+    const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
 
     const updateCriedAt = (date: Date) => {
         setSessionData((prev) => ({ ...prev, criedAt: date }));
@@ -66,8 +71,25 @@ export function CryingProvider({ children }: { children: React.ReactNode }) {
         setSessionData((prev) => ({ ...prev, recentSmileThing: text }));
     };
 
+    const startEditing = (entry: CryEntry) => {
+        if (!entry.id) return;
+        setEditingEntryId(entry.id);
+        setSessionData({
+            criedAt: entry.cried_at ? new Date(entry.cried_at) : null,
+            emotions: entry.emotions,
+            feelingIntensity: entry.feeling_intensity,
+            thoughts: entry.thoughts,
+            recentSmileThing: entry.recent_smile_thing,
+        });
+    };
+
+    const clearEditing = () => {
+        setEditingEntryId(null);
+    };
+
     const resetSession = () => {
         setSessionData(initialSessionData);
+        setEditingEntryId(null);
     };
 
     const isSessionComplete = () => {
@@ -82,10 +104,13 @@ export function CryingProvider({ children }: { children: React.ReactNode }) {
 
     const value = {
         sessionData,
+        editingEntryId,
         updateCriedAt,
         updateEmotions,
         updateIntensityAndThoughts,
         updateRecentSmileThing,
+        startEditing,
+        clearEditing,
         resetSession,
         isSessionComplete,
     };

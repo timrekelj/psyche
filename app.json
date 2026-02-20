@@ -53,6 +53,12 @@
     "owner": "tim_rekelj",
     "android": {
       "package": "si.timrekelj.thepsyche"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1acecf81-2b88-4031-b2e7-4b1a317e22d3"
     }
   }
 }

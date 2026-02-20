@@ -7,3 +7,4 @@ export { default as SelectInput } from './SelectInput';
 export { default as IntensitySlider } from './IntensitySlider';
 export { default as ReflectionCard } from './ReflectionCard';
 export { default as ToggleButton } from './ToggleButton';
+export { default as LoadingIndicator } from './LoadingIndicator';

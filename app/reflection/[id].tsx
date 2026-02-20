@@ -4,6 +4,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { CryingService, CryEntry } from '../../lib/cryingService';
+import { useCrying } from '@/contexts/CryingContext';
 import { Button } from '@/components/ui';
 import LoadingScreen from '@/components/screens/LoadingScreen';
 import { emotionLabels, formatRelativeDate } from '@/lib/reflectionUtils';
@@ -12,6 +13,7 @@ export default function ReflectionDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const { user } = useAuth();
     const { isDark } = useTheme();
+    const { startEditing } = useCrying();
     const [entry, setEntry] = useState<CryEntry | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -57,7 +59,8 @@ export default function ReflectionDetailScreen() {
                     [
                         {
                             text: 'Open Recovery Key',
-                            onPress: () => router.replace('/encryption-key' as any),
+                            onPress: () =>
+                                router.replace('/encryption-key-import' as any),
                         },
                     ]
                 );
@@ -80,6 +83,42 @@ export default function ReflectionDetailScreen() {
 
     const handleClose = () => {
         router.back();
+    };
+
+    const handleEdit = () => {
+        if (!entry) return;
+        startEditing(entry);
+        router.push('/crying/step1_datetime');
+    };
+
+    const handleRemove = () => {
+        if (!entry?.id || !user) return;
+        Alert.alert(
+            'Delete reflection',
+            'This will permanently remove this reflection.',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: async () => {
+                        const result =
+                            await CryingService.deleteCryingSession(
+                                user.id,
+                                entry.id as string
+                            );
+                        if (result.success) {
+                            router.back();
+                            return;
+                        }
+                        Alert.alert(
+                            'Error',
+                            result.error || 'Failed to delete reflection.'
+                        );
+                    },
+                },
+            ]
+        );
     };
 
     if (loading) {
@@ -189,7 +228,11 @@ export default function ReflectionDetailScreen() {
                 </View>
             </ScrollView>
 
-            <Button title="Close reflection journal" onPress={handleClose} />
+            <View className="gap-3">
+                <Button title="Edit reflection" onPress={handleEdit} />
+                <Button title="Remove reflection" onPress={handleRemove} />
+                <Button title="Close reflection journal" onPress={handleClose} />
+            </View>
         </View>
     );
 }

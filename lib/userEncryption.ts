@@ -68,22 +68,35 @@ export async function getEncryptionStatus(userId: string): Promise<EncryptionSta
 
     const activeKey = await getExistingActiveKey(userId);
     if (activeKey) {
-        const ok = verifyKeyCheckCiphertext(userId, activeKey, keyCheck);
-        if (!ok) {
+        try {
+            const ok = verifyKeyCheckCiphertext(userId, activeKey, keyCheck);
+            if (!ok) {
+                console.warn('Encryption key verification failed for user:', userId);
+                return { status: 'wrong_key' };
+            }
+
+            return { status: 'ready' };
+        } catch (error) {
+            console.error('Encryption verification error for user', userId, ':', error);
+            // If decryption fails, treat it as wrong key and prompt for key import
             return { status: 'wrong_key' };
         }
-
-        return { status: 'ready' };
     }
 
     const candidateKey = await getExistingCandidateKey(userId);
     if (candidateKey) {
-        const candidateOk = verifyKeyCheckCiphertext(
-            userId,
-            candidateKey,
-            keyCheck
-        );
-        if (!candidateOk) {
+        try {
+            const candidateOk = verifyKeyCheckCiphertext(
+                userId,
+                candidateKey,
+                keyCheck
+            );
+            if (!candidateOk) {
+                console.warn('Candidate key verification failed for user:', userId);
+                return { status: 'wrong_key' };
+            }
+        } catch (error) {
+            console.error('Candidate key verification error for user', userId, ':', error);
             return { status: 'wrong_key' };
         }
 
@@ -125,13 +138,32 @@ export async function getRecoveryKeyString(userId: string): Promise<string> {
 export async function resetEncryptedDataAndCreateKey(
     userId: string
 ): Promise<void> {
-    const { error } = await supabase
+    // Delete cries
+    const { error: criesError } = await supabase
         .from('cries')
         .delete()
         .eq('user_id', userId);
 
-    if (error) {
-        throw error;
+    if (criesError) {
+        throw criesError;
+    }
+
+    const { error: messagesError } = await supabase
+        .from('chat_messages')
+        .delete()
+        .eq('user_id', userId);
+
+    if (messagesError) {
+        throw messagesError;
+    }
+
+    const { error: sessionsError } = await supabase
+        .from('chat_sessions')
+        .delete()
+        .eq('user_id', userId);
+
+    if (sessionsError) {
+        throw sessionsError;
     }
 
     await clearActiveKey(userId);

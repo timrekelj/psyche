@@ -8,7 +8,12 @@ import { useAuth } from '../../contexts/AuthContext';
 import { CryingService } from '@/lib/cryingService';
 
 export default function CryingStep4() {
-    const { sessionData, updateRecentSmileThing } = useCrying();
+    const {
+        sessionData,
+        updateRecentSmileThing,
+        editingEntryId,
+        clearEditing,
+    } = useCrying();
     const { user } = useAuth();
     const { isDark } = useTheme();
     const [recentSmileThing, setRecentSmileThing] = useState<string>(
@@ -43,12 +48,21 @@ export default function CryingStep4() {
             };
 
             // Save to Supabase
-            const result = await CryingService.saveCryingSession(
-                user.id,
-                completeSessionData
-            );
+            const result = editingEntryId
+                ? await CryingService.updateCryingSession(
+                      user.id,
+                      editingEntryId,
+                      completeSessionData
+                  )
+                : await CryingService.saveCryingSession(
+                      user.id,
+                      completeSessionData
+                  );
 
             if (result.success) {
+                if (editingEntryId) {
+                    clearEditing();
+                }
                 router.push('/crying/step5_session_saved');
                 return;
             }
@@ -65,7 +79,8 @@ export default function CryingStep4() {
                     [
                         {
                             text: 'Open Recovery Key',
-                            onPress: () => router.push('/encryption-key' as any),
+                            onPress: () =>
+                                router.push('/encryption-key-import' as any),
                         },
                     ]
                 );
