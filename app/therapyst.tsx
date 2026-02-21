@@ -275,20 +275,6 @@ export default function TherapystScreen() {
         }
     }, [loadingChat]);
 
-    const cryContextText = useMemo(() => {
-        if (cryContext.status === 'error') {
-            return `Crying log unavailable: ${cryContext.error ?? 'Unknown error'}`;
-        }
-        if (cryContext.entries.length === 0) {
-            return 'Crying log: none recorded.';
-        }
-
-        return [
-            'Recent crying log entries (decrypted):',
-            ...cryContext.entries.map(formatCryEntry),
-        ].join('\n');
-    }, [cryContext]);
-
     const refreshSummary = async (nextMessages: Message[]) => {
         if (summarizing) return;
         setSummarizing(true);
@@ -338,8 +324,6 @@ export default function TherapystScreen() {
             setSummarizing(false);
         }
     };
-
-
 
     const handleSend = async () => {
         const trimmed = input.trim();
@@ -401,7 +385,7 @@ export default function TherapystScreen() {
                         typeof err?.message === 'string'
                             ? err.message.toLowerCase()
                             : '';
-                    const shouldFallback = message.includes('unsafe')
+                    const shouldFallback = message.includes('unsafe') || message.includes('not available')
 
                     if (!shouldFallback) {
                         throw err;
